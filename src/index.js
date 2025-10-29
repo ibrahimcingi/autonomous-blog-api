@@ -10,6 +10,7 @@ import { AuthMiddleWare } from "./auth/middleware.js";
 import cookieParser from "cookie-parser";
 import { generateImage } from "./openAI.js";
 import { uploadImageToWordPress } from "./wordpress.js";
+import UserSchema from "./models/UserSchema.js";
 
 
 dotenv.config();
@@ -32,6 +33,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
+
+  /*
+
+  const user = await UserSchema.findById(req.body.user_id);
+
+  if (!user.wordpressUrl || !user.wordpressPassword) {
+    return res.status(400).json({
+      message: "WordPress hesabı bağlanmamış. Lütfen önce ayarlardan ekleyin."
+    });
+  }
+    this part is for the stage when users can connect their wordpress account with app.
+    */
+
+  
   try {
     const {categoryId,category } = req.body;
 
