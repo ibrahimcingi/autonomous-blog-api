@@ -8,6 +8,8 @@ import { Authrouter } from "./auth/authentication.js";
 import { UserRouter } from "./Routes/userRouter.js";
 import { AuthMiddleWare } from "./auth/middleware.js";
 import cookieParser from "cookie-parser";
+import { generateImage } from "./openAI.js";
+import { uploadImageToWordPress } from "./wordpress.js";
 
 
 dotenv.config();
@@ -35,7 +37,23 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
     // 1️⃣ Gemini'den içerik al
     const content = await generateBlogPost(category);
-    const parsed=parseContent(content)
+    const parsed= parseContent(content)
+
+    let imageUrl=''
+
+    try {
+      imageUrl = await generateImage(category,parsed.title);
+    } catch (err) {
+      if (err.code === "billing_hard_limit_reached") {
+        console.log("⚠️ OpenAI limit doldu, placeholder kullanılacak.");
+        imageUrl = "https://placehold.co/1024x1024?text=Blog+Image";
+      } else {
+        throw err;
+      }
+    }
+
+    const featuredMediaId = await uploadImageToWordPress(imageUrl);
+
     
     // 2️⃣ WordPress'e gönder
     const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
@@ -50,7 +68,9 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         content: parsed.sections.map(s => `<h2>${s.subtitle}</h2>${s.content}`).join("") +
            `<h2>Sonuç</h2><p>${parsed.conclusion}</p>`,
         status: "publish",
+        featured_media: featuredMediaId,
         categories: [categoryId],
+
       }),
     });
 
