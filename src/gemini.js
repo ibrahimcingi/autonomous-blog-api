@@ -26,7 +26,7 @@ Başlık, giriş paragrafı, 2 alt başlık ve sonuç içeren Türkçe bir blog 
 
   const data = await response.json();
 
-  // Yanıttan blog metnini ayıklayalım
+
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Boş içerik döndü 😅";
   console.log(text)
   return text;

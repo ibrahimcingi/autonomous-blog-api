@@ -35,7 +35,6 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
   try {
     const {categoryId,category } = req.body;
 
-    // 1️⃣ Gemini'den içerik al
     const content = await generateBlogPost(category);
     const parsed= parseContent(content)
 
@@ -55,7 +54,6 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     const featuredMediaId = await uploadImageToWordPress(imageUrl);
 
     
-    // 2️⃣ WordPress'e gönder
     const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
       method: "POST",
       headers: {
