@@ -11,7 +11,7 @@ import cookieParser from "cookie-parser";
 import { generateImage } from "./geminiGenerateImage.js";
 import { uploadImageToWordPress } from "./wordpress.js";
 import UserSchema from "./models/UserSchema.js";
-import passport from "./config/passport.js";
+import passport from "passport";
 
 
 
@@ -23,9 +23,11 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.use(passport.initialize());
+
 app.use('/api/users',UserRouter)
 app.use('/api/auth',Authrouter)
-app.use(passport.initialize());
+
 
 connectDB()
 

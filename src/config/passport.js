@@ -11,23 +11,25 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:8000/api/auth/google/callback"
+      callbackURL: "/api/auth/google/callback",
     },
-    async (accessToken,refreshToken,profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails[0].value;
         let user = await UserSchema.findOne({ email });
 
-        // Kullanıcı yoksa oluştur
+        
         if (!user) {
           user = await UserSchema.create({
             name: profile.displayName,
             email,
-            password: null, // Google kullanıcısı olduğu için yok
+            password:null,
+            googleId: profile.id
+
           });
         }
 
-        // JWT üret
+        
         const token = jwt.sign(
           { id: user._id, email: user.email },
           process.env.ACCESS_TOKEN_SECRET,

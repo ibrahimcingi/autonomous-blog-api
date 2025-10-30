@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
-import passport from '../config/passport.js';
+import passport from "passport";
+import "../config/passport.js";
 
 
 
@@ -24,6 +25,7 @@ Authrouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { user, token } = req.user;
+    //res.json({'token':token})
     res.redirect(`${process.env.WP_URL}`);
   }
 );
