@@ -8,9 +8,10 @@ import { Authrouter } from "./auth/authentication.js";
 import { UserRouter } from "./Routes/userRouter.js";
 import { AuthMiddleWare } from "./auth/middleware.js";
 import cookieParser from "cookie-parser";
-import { generateImage } from "./openAI.js";
+import { generateImage } from "./geminiGenerateImage.js";
 import { uploadImageToWordPress } from "./wordpress.js";
 import UserSchema from "./models/UserSchema.js";
+import passport from "passport";
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use('/api/users',UserRouter)
 app.use('/api/auth',Authrouter)
+app.use(passport.initialize());
 
 connectDB()
 
