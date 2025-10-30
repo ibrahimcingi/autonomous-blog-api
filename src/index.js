@@ -11,7 +11,8 @@ import cookieParser from "cookie-parser";
 import { generateImage } from "./geminiGenerateImage.js";
 import { uploadImageToWordPress } from "./wordpress.js";
 import UserSchema from "./models/UserSchema.js";
-import passport from "passport";
+import passport from "./config/passport.js";
+
 
 
 dotenv.config();

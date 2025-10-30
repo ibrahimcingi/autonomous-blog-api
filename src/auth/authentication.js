@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
-import passport from "passport";
-import "../config/passport.js";
+import passport from '../config/passport.js';
+
 
 
 dotenv.config()
@@ -15,7 +15,7 @@ export const Authrouter=express.Router()
 
 Authrouter.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"],prompt: "select_account" })
 );
 
 // Callback route
@@ -24,8 +24,7 @@ Authrouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { user, token } = req.user;
-    res.json({'success':'true','token':token,'user':user})
-    //res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
+    res.redirect(`${process.env.WP_URL}`);
   }
 );
 

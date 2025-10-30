@@ -11,16 +11,16 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL: "http://localhost:8000/api/auth/google/callback"
     },
-    async (profile, done) => {
+    async (accessToken,refreshToken,profile, done) => {
       try {
         const email = profile.emails[0].value;
         let user = await UserSchema.findOne({ email });
 
         // Kullanıcı yoksa oluştur
         if (!user) {
-          user = await User.create({
+          user = await UserSchema.create({
             name: profile.displayName,
             email,
             password: null, // Google kullanıcısı olduğu için yok
