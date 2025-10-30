@@ -17,9 +17,7 @@ export async function uploadImageToWordPress(imageUrl) {
   const upload = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/media`, {
     method: "POST",
     headers: {
-      Authorization: `Basic ${Buffer.from(
-        `${process.env.WP_USER}:${process.env.WP_APP_PASS}`
-      ).toString("base64")}`,
+      Authorization: Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString('base64')
     },
     body: form,
   });
