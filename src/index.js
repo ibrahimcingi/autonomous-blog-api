@@ -73,6 +73,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     }
 
     const featuredMediaId = await uploadImageToWordPress(imageUrl);
+    console.log(`featured media id: ${featuredMediaId}`)
 
     const postContent = `
       <img src="${imageUrl}" alt="Featured Image" style="width:100%; height:auto; padding:15px"/>
