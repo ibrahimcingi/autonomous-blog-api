@@ -12,6 +12,9 @@ import { generateImage } from "./geminiGenerateImage.js";
 import { uploadImageToWordPress } from "./wordpress.js";
 import UserSchema from "./models/UserSchema.js";
 import passport from "passport";
+import { replaceImagePlaceholders } from "./geminiGenerateImage.js";
+import sleep from "sleep-promise";
+import { generateFeaturedImage } from "./geminiGenerateImage.js";
 
 
 
@@ -59,31 +62,50 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     const content = await generateBlogPost(category);
     const parsed= parseContent(content)
 
-    let imageUrl=''
+    let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category);
 
-    try {
-      imageUrl = await generateImage(category,parsed.title);
-    } catch (err) {
-      if (err.code === "billing_hard_limit_reached") {
-        console.log("⚠️ Gemini limit doldu, placeholder kullanılacak.");
-        imageUrl = "https://placehold.co/1024x1024?text=Blog+Image";
-      } else {
-        throw err;
-      }
+    const finalParsed=parseContent(contentWithImages)
+
+    await sleep(1500)
+    
+    const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.`;
+
+    const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt,3)
+    
+    let featuredResponse=null
+
+    if (featuredImageUrl) {
+      featuredResponse = await uploadImageToWordPress(featuredImageUrl);
+      console.log(`featuredId: ${featuredResponse.id}`);
+    
+      // Bu çok kritik:
+      await new Promise(resolve => setTimeout(resolve, 2500)); 
     }
 
-    const featuredMediaId = await uploadImageToWordPress(imageUrl);
-    console.log(`featured media id: ${featuredMediaId}`)
-
-    const postContent = `
-      <img src="${imageUrl}" alt="Featured Image" style="width:100%; height:auto; padding:15px"/>
-      ${parsed.sections.map(s => `<h2>${s.subtitle}</h2><p>${s.content}</p>`).join("")}
-      <h2>Sonuç</h2>
-      <p>${parsed.conclusion}</p>
-      `;
-
-
     
+    
+       
+      
+    
+      const postContent = `
+      <img src="${featuredImageUrl}" alt="Featured Image" style="width:100%; height:auto; padding:15px"/>
+      ${finalParsed.sections.map(s => `<h2 style="margin:10px">${s.subtitle}</h2>${s.content}`).join("")}
+      <h2 style="margin:10px" >Sonuç</h2>
+      ${finalParsed.conclusion}
+    `;
+
+    const postBody = {
+      title: finalParsed.title || "Başlıksız Yazı",
+      content: postContent,
+      status: "publish",
+      categories: [categoryId],
+      slug: `auto-post-${Date.now()}` // cache kırmak için
+    };
+    //if (featuredResponse?.id) postBody.featured_media = featuredResponse.id;
+    
+
+   
+
     const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
       method: "POST",
       headers: {
@@ -91,14 +113,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         "Authorization":
           "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
       },
-      body: JSON.stringify({
-        title:parsed.title,
-        content:postContent,
-        status: "publish",
-        featured_media: featuredMediaId,
-        categories: [categoryId],
-
-      }),
+      body: JSON.stringify(postBody),
     });
 
     const data = await wpResponse.json();

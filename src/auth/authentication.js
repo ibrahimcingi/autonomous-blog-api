@@ -25,7 +25,12 @@ Authrouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { user, token } = req.user;
-    //res.json({'token':token})
+    res.cookie('token',token,{
+      httpOnly:true,
+      secure:process.env.NODE_ENV==='production',
+      sameSite:process.env.NODE_ENV==='production' ? 'none':'strict',
+      maxAge:7*24*60*60*1000
+    })
     res.redirect(`${process.env.WP_URL}`);
   }
 );
