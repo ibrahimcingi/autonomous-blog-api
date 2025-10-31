@@ -56,73 +56,82 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     */
 
   
-  try {
-    const {categoryId,category } = req.body;
+    try {
+      const { categoryId, category } = req.body;
+  
+      
+      const content = await generateBlogPost(category);
+      const parsed = parseContent(content);
+      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category);
+      const finalParsed = parseContent(contentWithImages);
+  
+     
+      const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.`;
+  
+      const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt, 3);
+      let featuredResponse = null;
+      if (featuredImageUrl) {
+        featuredResponse = await uploadImageToWordPress(featuredImageUrl);
+        console.log(`✅ Featured image yüklendi: ${featuredResponse.id}`);
+        await new Promise(r => setTimeout(r, 2000)); // WP'nin meta işlemini beklet
+      }
+  
+     
+      const postContent = `
+        ${finalParsed.sections.map(s => `<h2 style="margin:10px">${s.subtitle}</h2>${s.content}`).join("")}
+        <h2 style="margin:10px">Sonuç</h2>
+        ${finalParsed.conclusion}
+      `;
+  
+      const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+            "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
+        },
+        body: JSON.stringify({
+          title: finalParsed.title || "Başlıksız Yazı",
+          content: postContent,
+          status: "publish",
+          categories: [categoryId],
 
-    const content = await generateBlogPost(category);
-    const parsed= parseContent(content)
+        }),
+      });
 
-    let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category);
-
-    const finalParsed=parseContent(contentWithImages)
-
-    await sleep(1500)
-    
-    const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.`;
-
-    const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt,3)
-    
-    let featuredResponse=null
-
-    if (featuredImageUrl) {
-      featuredResponse = await uploadImageToWordPress(featuredImageUrl);
-      console.log(`featuredId: ${featuredResponse.id}`);
-    
-      // Bu çok kritik:
-      await new Promise(resolve => setTimeout(resolve, 2500)); 
+      console.log(wpResponse)
+      if (!wpResponse.ok) {
+        const errText = await wpResponse.text();
+        console.error("❌ WP Error:", wpResponse.status, errText.slice(0, 500));
+        throw new Error(`WP POST failed (${wpResponse.status})`);
+      }
+  
+      const postData = await wpResponse.json();
+      const postId = postData.id;
+      console.log(`✅ Post oluşturuldu: ${postId}`);
+  
+      if (featuredResponse && featuredResponse.id && postId) {
+        await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts/${postId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+              "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
+          },
+          body: JSON.stringify({
+            featured_media: featuredResponse.id,
+          }),
+        });
+        console.log(`✅ Featured image (${featuredResponse.id}) post #${postId} için eklendi`);
+      }
+  
+      res.json({ success: true, postId, featuredId: featuredResponse?.id, title: finalParsed.title });
+  
+    } catch (error) {
+      console.error("❌ Hata:", error);
+      res.status(500).json({ success: false, error: error.message });
     }
 
-    
-    
-       
-      
-    
-      const postContent = `
-      <img src="${featuredImageUrl}" alt="Featured Image" style="width:100%; height:auto; padding:15px"/>
-      ${finalParsed.sections.map(s => `<h2 style="margin:10px">${s.subtitle}</h2>${s.content}`).join("")}
-      <h2 style="margin:10px" >Sonuç</h2>
-      ${finalParsed.conclusion}
-    `;
-
-    const postBody = {
-      title: finalParsed.title || "Başlıksız Yazı",
-      content: postContent,
-      status: "publish",
-      categories: [categoryId],
-      slug: `auto-post-${Date.now()}` // cache kırmak için
-    };
-    //if (featuredResponse?.id) postBody.featured_media = featuredResponse.id;
-    
-
-   
-
-    const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization":
-          "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
-      },
-      body: JSON.stringify(postBody),
-    });
-
-    const data = await wpResponse.json();
-    res.json({ success: true, data });
-
-  } catch (error) {
-    console.error("❌ Hata:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
 });
 
 const PORT = process.env.PORT || 3000;

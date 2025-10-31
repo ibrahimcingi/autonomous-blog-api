@@ -111,6 +111,7 @@ export async function replaceImagePlaceholders(content, title, category) {
 
 export async function generateFeaturedImage(prompt,retries) {
   for (let i = 0; i < retries; i++) {
+    await sleep(1500)
     const img = await generateImage(prompt);
     if (img && img !== "no_image") return img;
     console.warn(`⚠️ Featured image üretilemedi (deneme ${i + 1}/${retries})`);
