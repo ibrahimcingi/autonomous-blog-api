@@ -5,6 +5,8 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import passport from "passport";
 import "../config/passport.js";
+import { AuthMiddleWare } from "./middleware.js"
+import transporter from "../config/nodeMailer.js"
 
 
 
@@ -57,5 +59,57 @@ Authrouter.post('/login',async (req,res)=>{
     maxAge:7*24*60*60*1000
   })
   res.json({'message':'succesful login','token':token})
+
+})
+
+
+
+Authrouter.post('/SendResetPasswordEmail',AuthMiddleWare,async (req,res)=>{
+  const user = await UserSchema.findById(req.user.id);
+
+  /*
+  const {email}=req.body
+  if(!email){
+    return res.json({'message':'email is required'})
+  }
+  const user=await UserSchema.findOne({email})
+  */
+
+  if(!user){
+    return res.json({'message':'user not found'})
+  }
+
+  const OTP = String(Math.floor(100000 + Math.random() * 900000));
+  const OTPExpiresIn=Date.now()+15*60*1000
+
+  user.resetOTP= OTP
+  user.resetOTPExpiresIn= OTPExpiresIn
+
+  await user.save()
+
+  const emailOptions = {
+    from: process.env.SENDER_EMAIL,
+    to: user.email,
+    subject: "Password Reset OTP",
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #4CAF50;">Password Reset</h2>
+        <p>Hello <b>${user.name}</b>,</p>
+        <p>Your OTP is: <span style="font-size: 20px; color: red;">${OTP}</span></p>
+        <p>This code is valid for <b>15 minutes</b>.</p>
+        <a href="https://tamirbilgi.online" 
+           style="display:inline-block; padding:10px 20px; background:#4CAF50; color:#fff; text-decoration:none; border-radius:5px;">
+          Reset Password
+        </a>
+      </div>
+    `
+  }
+      try{
+        await transporter.sendMail(emailOptions)
+        console.log('message sent')
+        return res.json({'message':'password reset OTP sent successfully'})
+      }catch(error){
+        return res.json({'message':error.message})
+      }
 
 })

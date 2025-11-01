@@ -27,7 +27,7 @@ UserRouter.post('/registration',async (req,res)=>{
 
   UserSchema.create(req.body)
   .then(user => {
-    res.status(200).json(user); // kullanıcıyı hemen gönder
+    res.status(200).json(user); 
     transporter.sendMail(emailOptions)
       .then(() => console.log('Welcome mail sent'))
       .catch(err => console.log('Mail error:', err.message));
@@ -35,6 +35,8 @@ UserRouter.post('/registration',async (req,res)=>{
   .catch(err => res.status(500).json({ message: err.message }));
 
 })
+
+
 
 
 UserRouter.delete('/deleteAll', async (req, res) => {

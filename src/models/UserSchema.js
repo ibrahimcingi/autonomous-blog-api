@@ -21,6 +21,15 @@ const UserSchema=new mongoose.Schema({
   },
   googleId: { type: String,required:false },
   
+  resetOTP:{
+    type:String,
+    default:''
+  },
+  resetOTPExpiresIn:{
+    type:Number,
+    default:0
+  },
+  
   wordpressUrl: { type: String, required: false },
   wordpressPassword: { type: String, required: false },
   categories: [{ type: String }],

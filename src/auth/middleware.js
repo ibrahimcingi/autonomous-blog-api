@@ -8,11 +8,10 @@ export const AuthMiddleWare=async (req,res,next)=>{
   if(!token){
     return res.json({'message':'Not Authorized'})
   }
-
   try{
     const decoded= jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
     if(decoded.id){
-      req.body.user_id=decoded.id
+      req.user = { id: decoded.id };
     }else{
       return res.json({'message':'Not Authorized'})
     }

@@ -45,7 +45,8 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
   /*
 
-  const user = await UserSchema.findById(req.body.user_id);
+  const user = await UserSchema.findById(req.user.id);
+
 
   if (!user.wordpressUrl || !user.wordpressPassword) {
     return res.status(400).json({
