@@ -17,7 +17,7 @@ const UserSchema=new mongoose.Schema({
     required: function() {
       return !this.googleId; 
     },
-    minlength: [6, "Password must be at least 6 characters long"]
+    minlength: [8, "Password must be at least 6 characters long"]
   },
   googleId: { type: String,required:false },
   
@@ -42,6 +42,9 @@ UserSchema.pre("save", async  function (next) {
   this.password = await bcrypt.hash(String(this.password), 10);
   next();
 });
+
+
+
 
 UserSchema.pre("save", async  function (next) {
   if (!this.isModified("wordpressPassword")) return next(); 

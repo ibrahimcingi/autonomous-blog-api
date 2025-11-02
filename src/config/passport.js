@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
 import UserSchema from "../models/UserSchema.js";
 import jwt from "jsonwebtoken";
+import transporter from "./nodeMailer.js";
 
 dotenv.config();
 
@@ -27,6 +28,17 @@ passport.use(
             googleId: profile.id
 
           });
+
+          const emailOptions={
+            from: process.env.SENDER_EMAIL,
+            to: email,
+            subject: "Welcome to Our App",
+            text: `Hello ${profile.displayName}! your account has been created.`, 
+          }
+
+          transporter.sendMail(emailOptions)
+
+          
         }
 
         

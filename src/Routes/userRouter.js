@@ -36,12 +36,28 @@ UserRouter.post('/registration',async (req,res)=>{
 
 })
 
+UserRouter.get('/getAll', async (req, res) => {
+  try {
+    const users = await UserSchema.find({});
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'not found' });
+    }
+
+    // Başarılı durum
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 
 UserRouter.delete('/deleteAll', async (req, res) => {
   try {
-    const result = await UserSchema.deleteMany({}); // tüm kullanıcıları siler
+    const result = await UserSchema.deleteMany(); // tüm kullanıcıları siler
     res.status(200).json({
       message: `✅ ${result.deletedCount} kullanıcı silindi.`,
     });
@@ -49,5 +65,6 @@ UserRouter.delete('/deleteAll', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 

@@ -22,7 +22,11 @@ import { generateFeaturedImage } from "./geminiGenerateImage.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173", // Frontend adresin
+  credentials: true,               // Cookie ve Authorization header’larını gönder
+}));
 app.use(express.json());
 
 app.use(cookieParser());
