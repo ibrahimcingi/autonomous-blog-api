@@ -159,7 +159,6 @@ Authrouter.post('/resetPassword', async (req, res) => {
     return res.json({ message: 'user not found' });
   }
 
-  // ✅ Burayı düzelttik
   if (String(user.resetOTP) !== String(OTP) || user.resetOTP === '') {
     return res.json({ message: 'account could not be verified' });
   }
@@ -171,12 +170,12 @@ Authrouter.post('/resetPassword', async (req, res) => {
     return res.json({ message: 'OTP is expired' });
   }
 
-  // ✅ Şifreyi güncelle
+  
   user.password = new_password;
   user.resetOTP = '';
   user.resetOTPExpiresIn = 0;
 
-  await user.save(); // pre('save') hook burada devreye girer
+  await user.save(); 
 
   return res.json({ message: 'password reseted and updated successfully.' });
 });

@@ -24,8 +24,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173", // Frontend adresin
-  credentials: true,               // Cookie ve Authorization header’larını gönder
+  origin: "http://localhost:5173", 
+  credentials: true,               
 }));
 app.use(express.json());
 
