@@ -15,6 +15,7 @@ import passport from "passport";
 import { replaceImagePlaceholders } from "./geminiGenerateImage.js";
 import sleep from "sleep-promise";
 import { generateFeaturedImage } from "./geminiGenerateImage.js";
+import WordpressRouter from "./wordpress.js";
 
 
 
@@ -35,6 +36,7 @@ app.use(passport.initialize());
 
 app.use('/api/users',UserRouter)
 app.use('/api/auth',Authrouter)
+app.use('/api/wordpress',WordpressRouter)
 
 
 connectDB()
@@ -47,31 +49,27 @@ app.get("/", (req, res) => {
 
 app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
-  /*
-
   const user = await UserSchema.findById(req.user.id);
-
-
   if (!user.wordpressUrl || !user.wordpressPassword) {
     return res.status(400).json({
       message: "WordPress hesabı bağlanmamış. Lütfen önce ayarlardan ekleyin."
     });
   }
-    this part is for the stage when users can connect their wordpress account with app.
-    */
+    
+    try {
+      const { categoryId, category,title } = req.body;
 
   
-    try {
-      const { categoryId, category } = req.body;
-  
-      
-      const content = await generateBlogPost(category);
+      const content = await generateBlogPost(category,title);
+      await sleep(500)
       const parsed = parseContent(content);
-      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category);
+      await sleep(500)
+      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category,3);
+      await sleep(500)
       const finalParsed = parseContent(contentWithImages);
   
      
-      const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.`;
+      const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.Olabildiğince yazı kullanma.Eğer kullanırsan da yazım yanlışı yapma.`;
   
       const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt, 3);
       let featuredResponse = null;
@@ -104,7 +102,6 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         }),
       });
 
-      console.log(wpResponse)
       if (!wpResponse.ok) {
         const errText = await wpResponse.text();
         console.error("❌ WP Error:", wpResponse.status, errText.slice(0, 500));

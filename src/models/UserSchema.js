@@ -32,6 +32,7 @@ const UserSchema=new mongoose.Schema({
   
   wordpressUrl: { type: String, required: false },
   wordpressPassword: { type: String, required: false },
+  wordpressUser:{type: String, required: false},
   categories: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
   

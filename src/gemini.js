@@ -2,14 +2,14 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
 
-export async function generateBlogPost(category) {
+export async function generateBlogPost(category,title) {
   const apiKey = process.env.GEMINI_API_KEY;
   const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent";
 
   const prompt = `
   Sen bir uzman içerik editörüsün. 
-${category} kategorisinde, SEO uyumlu, özgün, uzun ve detaylı bir blog yazısı oluştur.
-### **Başlık: [konuya uygun, ilgi çekici bir başlık]**
+${category} kategorisinde, ${title} başlıklı SEO uyumlu, özgün, uzun ve detaylı bir blog yazısı oluştur.
+### **Başlık: ${title ? title:'konuya uygun, ilgi çekici bir başlık'}**
 
 #### **Giriş**
 Konuya genel bir giriş yap. Okuyucuyu içeriğe hazırla.  
