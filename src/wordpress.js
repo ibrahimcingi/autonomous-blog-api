@@ -6,6 +6,7 @@ import { AuthMiddleWare } from "./auth/middleware.js";
 import bcrypt from 'bcrypt'
 import UserSchema from "./models/UserSchema.js";
 import { encryptText } from "../utils/crypto.js";
+import sleep from "sleep-promise";
 
 dotenv.config()
 
@@ -200,6 +201,8 @@ export async function getOrCreateCategory(categoryName) {
     headers: { Authorization: wpAuth },
   });
   const existingData = await existing.json();
+
+  await sleep(1000)
 
   if (Array.isArray(existingData) && existingData.length > 0) {
     console.log(`✅ Kategori zaten var: ${existingData[0].id} (${existingData[0].name})`);

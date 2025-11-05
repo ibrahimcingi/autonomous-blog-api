@@ -67,41 +67,44 @@ export async function generateImage(prompt,retries) {
 
 
 
-export async function replaceImagePlaceholders(content, title, category,retries) {
-  // 1. İçerikteki tüm {imageX} placeholder'larını bul
-  const placeholders = content.match(/\{image\d+\}/g);
-  if (!placeholders) return content; // hiç görsel yoksa direkt döndür
+export async function replaceImagePlaceholders(content, title, category, retries) {
+  const placeholders = content.match(/\{image:([^}]+)\}/g);
+  if (!placeholders) return content;
 
-  // 2. Her placeholder için paralel olarak görsel üret
-  const imagePromises = placeholders.map(async (placeholder, index) => {
-    await sleep(3000);
+  const imagePromises = placeholders.map(async (placeholder) => {
+    await sleep(2500);
     try {
-      const imagePrompt = `"${title}" başlıklı ${category} kategorisindeki blog yazısının ${index + 1}. bölümüne uygun, modern, estetik bir görsel oluştur.Olabildiğince az yazı kullan.Eğer kullanırsan da yazım yanlışı yapma.`;
-      
-      // Görseli üret
-      const imageUrl = await generateImage(imagePrompt,retries);
+      const match = placeholder.match(/\{image:([^}]+)\}/);
+      let sectionTopic = match ? match[1].trim() : "genel";
+
+      sectionTopic = sectionTopic
+  .replace(/Alt Alt Başlık\s*\d*:\s*/gi, "")  // "Alt Alt Başlık 2:" veya "Alt Alt Başlık:" ifadelerini kaldır
+  .replace(/Alt Başlık\s*\d*:\s*/gi, "")      // "Alt Başlık 1:" ifadelerini kaldır
+  .replace(/Giriş|Sonuç|Conclusion/gi, (m) => m.toLowerCase()) // giriş / sonuç sabitlerini normalize et
+  .trim();
+
+  const imagePrompt = `
+  "${title}" başlıklı ${category} kategorisindeki blog yazısında
+  "${sectionTopic}" konusunu anlatan bir görsel oluştur.
+  Modern, estetik, özgün, yüksek kaliteli ve yazısız bir tasarım olsun.`;
+  
+
+      const imageUrl = await generateImage(imagePrompt, retries);
 
       if (!imageUrl) {
-        console.warn(`⚠️ ${placeholder} için model görsel üretmedi.`);
-        await new Promise(r => setTimeout(r, 2000));
+        console.warn(`⚠️ Görsel oluşturulamadı: ${sectionTopic}`);
         return { placeholder, html: "" };
-        
-      }else{
-
-        const { id: uploadedImageId, url: uploadedImageUrl } = await uploadImageToWordPress(imageUrl);
-
-        
-      // <img> etiketi hazırla
-      return {
-        placeholder,
-        html: `<img src="${uploadedImageUrl}" alt="Blog görseli ${index + 1}" style="width:100%;height:auto;margin:20px 0;"/>`,
-      };
       }
 
-     
+      const { id: uploadedImageId, url: uploadedImageUrl } = await uploadImageToWordPress(imageUrl);
+
+      return {
+        placeholder,
+        html: `<img src="${uploadedImageUrl}" alt="${sectionTopic}" style="width:100%;height:auto;margin:20px 0;"/>`,
+      };
     } catch (err) {
-      console.error(`❌ ${placeholder} için görsel oluşturulamadı:`, err.message);
-      return { placeholder, html: "" }; // hata olursa boş bırak
+      console.error(`❌ ${placeholder} için hata:`, err.message);
+      return { placeholder, html: "" };
     }
   });
 
@@ -112,10 +115,9 @@ export async function replaceImagePlaceholders(content, title, category,retries)
     finalContent = finalContent.replace(placeholder, html);
   });
 
-  
-
   return finalContent;
 }
+
 
 export async function generateFeaturedImage(prompt,retries) {
   for (let i = 0; i < retries; i++) {
