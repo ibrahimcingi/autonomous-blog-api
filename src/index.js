@@ -16,6 +16,7 @@ import { replaceImagePlaceholders } from "./geminiGenerateImage.js";
 import sleep from "sleep-promise";
 import { generateFeaturedImage } from "./geminiGenerateImage.js";
 import WordpressRouter from "./wordpress.js";
+import { decryptText } from "../utils/crypto.js";
 
 
 
@@ -50,12 +51,16 @@ app.get("/", (req, res) => {
 app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
   const user = await UserSchema.findById(req.user.id);
-  if (!user.wordpressUrl || !user.wordpressPassword) {
+  if (!user.wordpressUrl || !user.wordpressPassword || !user.wordpressUser) {
     return res.status(400).json({
       message: "WordPress hesabı bağlanmamış. Lütfen önce ayarlardan ekleyin."
     });
   }
-    
+
+  const DecryptedPassword=decryptText(user.wordpressPassword)
+  console.log(DecryptedPassword)
+  
+
     try {
       const { categoryId, category,title } = req.body;
 
@@ -86,18 +91,18 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         ${finalParsed.conclusion}
       `;
   
-      const wpResponse = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts`, {
+      const wpResponse = await fetch(`${user.wordpressUrl}/wp-json/wp/v2/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-            "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
+            "Basic " + Buffer.from(`${user.wordpressUser}:${DecryptedPassword}`).toString("base64"),
         },
         body: JSON.stringify({
           title: finalParsed.title || "Başlıksız Yazı",
           content: postContent,
           status: "publish",
-          categories: [categoryId],
+          categories: [51],
 
         }),
       });
@@ -110,15 +115,17 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
   
       const postData = await wpResponse.json();
       const postId = postData.id;
+      const postUrl = postData.link;        // 🆕 Post linki
+      const publishDate = postData.date;    // 🆕 Yayın tarihi
       console.log(`✅ Post oluşturuldu: ${postId}`);
   
       if (featuredResponse && featuredResponse.id && postId) {
-        await fetch(`${process.env.WP_URL}/wp-json/wp/v2/posts/${postId}`, {
+        await fetch(`${user.wordpressUrl}/wp-json/wp/v2/posts/${postId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization":
-              "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
+              "Basic " + Buffer.from(`${user.wordpressUser}:${DecryptedPassword}`).toString("base64"),
           },
           body: JSON.stringify({
             featured_media: featuredResponse.id,
@@ -127,7 +134,15 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         console.log(`✅ Featured image (${featuredResponse.id}) post #${postId} için eklendi`);
       }
   
-      res.json({ success: true, postId, featuredId: featuredResponse?.id, title: finalParsed.title });
+      res.json({
+        success: true,
+        postId,
+        featuredId: featuredResponse?.id,
+        title: finalParsed.title,
+        postUrl,         // 🆕 link
+        publishDate      // 🆕 tarih
+      });
+      
   
     } catch (error) {
       console.error("❌ Hata:", error);

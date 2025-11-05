@@ -5,6 +5,7 @@ import express from 'express'
 import { AuthMiddleWare } from "./auth/middleware.js";
 import bcrypt from 'bcrypt'
 import UserSchema from "./models/UserSchema.js";
+import { encryptText } from "../utils/crypto.js";
 
 dotenv.config()
 
@@ -49,7 +50,8 @@ WordpressRouter.post("/testConnection",async (req, res) => {
 });
 
 WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
-  const { wordpressUrl, wordpressUser, wordpressPassword,categories } = req.body;
+  const { wordpressUrl, wordpressUsername,applicationPassword,categories } = req.body;
+  
   const userId = req.user.id;
       if (!userId) {
         console.log('not authorized')
@@ -64,8 +66,8 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
 
       try{
         userDoc.wordpressUrl = wordpressUrl;
-        userDoc.wordpressUser = wordpressUser;
-        userDoc.wordpressPassword = await bcrypt.hash(String(wordpressPassword), 10);
+        userDoc.wordpressUser = wordpressUsername;
+        userDoc.wordpressPassword =  encryptText(applicationPassword)
         userDoc.categories=categories
 
         await userDoc.save();
@@ -83,12 +85,55 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
         })
       
       }
-
-      
-    
-
-
 })
+
+
+WordpressRouter.get('/summary', async (req, res) => {
+  const { wordpressUrl } = req.query;
+
+  try {
+    const siteInfoRes = await fetch(`${wordpressUrl}/wp-json`);
+    const siteInfo = await siteInfoRes.json();
+
+    const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=1`);
+    const totalPosts = postsRes.headers.get('X-WP-Total');
+
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+    const monthlyRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?after=${firstDay}&before=${lastDay}`);
+    const monthlyPosts = await monthlyRes.json();
+
+    const categoriesRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories`);
+    const categories = await categoriesRes.json();
+
+    const recentPostsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=3&orderby=date&order=desc`);
+    const recentPosts = await recentPostsRes.json();
+
+    res.json({
+      site: {
+        name: siteInfo.name,
+        url: siteInfo.url,
+      },
+      stats: {
+        totalPosts,
+        monthlyPosts: monthlyPosts.length,
+        activeCategories: categories.filter(c => c.count > 0).length,
+      },
+      recentPosts: recentPosts.map(p => ({
+        id: p.id,
+        title: p.title.rendered,
+        date: p.date,
+        category: p.categories[0],
+        status: p.status,
+      })),
+    });
+  } catch (err) {
+    console.error('WordPress summary fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch summary', message: err.message });
+  }
+});
+
 
 export default WordpressRouter;
 

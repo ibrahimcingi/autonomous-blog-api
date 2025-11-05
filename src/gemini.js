@@ -46,7 +46,8 @@ Kurallar:
 - Alt Başlık ve Alt Alt başlık sayısı yazıdan yazıya değişebilir ama format yukardaki gibi olacak.
 - Her bölümde açıklayıcı, öğretici ve doğal bir anlatım kullan.
 - İçeriğe görsel yerleri için {imageX} placeholder’larını koymayı UNUTMA.
-- Placeholder'ları yalnızca yeni bir konuya geçerken yani gerçekten ihityacın olunca kullan,çok fazla görsel placeholder'ı koyma.
+- Ortalamada her 250 kelime için 1 image placeholder'ı kullan.Ancak yeni bir konuya vesaire geçiyorsa yazı kullanabilirsin.
+- Placeholder'ları yalnızca yeni bir konuya geçerken yani gerçekten ihtiyacın olunca kullan,çok fazla görsel placeholder'ı koyma.
 - Başlık, alt başlık, alt-alt başlık ve sonuç formatını **mutlaka koru**.
 
 `;

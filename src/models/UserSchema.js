@@ -47,10 +47,4 @@ UserSchema.pre("save", async  function (next) {
 
 
 
-UserSchema.pre("save", async  function (next) {
-  if (!this.isModified("wordpressPassword")) return next(); 
-  this.wordpressPassword = await bcrypt.hash(String(this.wordpressPassword), 10);
-  next();
-});
-
 export default mongoose.model("User", UserSchema);

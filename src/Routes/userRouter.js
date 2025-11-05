@@ -2,6 +2,7 @@ import express from 'express'
 import UserSchema from '../models/UserSchema.js'
 import transporter from '../config/nodeMailer.js'
 import dotenv from 'dotenv'
+import { AuthMiddleWare } from '../auth/middleware.js'
 
 dotenv.config()
 
@@ -51,6 +52,25 @@ UserRouter.get('/getAll', async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+UserRouter.get('/me',AuthMiddleWare, async (req,res)=>{
+  try{
+    const userId = req.user.id;
+      if (!userId) {
+        console.log('not authorized')
+        return res.status(401).json({ message: "Not Authorized" });
+      }
+      const userDoc = await UserSchema.findById(userId);
+      if (!userDoc) {
+        console.log('user not found')
+        return res.status(401).json({ message: "user not authenticated " });
+      }
+      return res.json({user:userDoc})
+  }catch(error){
+    res.status(500).json({ message: error.message });
+
+  }
+})
 
 
 
