@@ -33,8 +33,10 @@ Authrouter.get(
       sameSite:process.env.NODE_ENV==='production' ? 'none':'strict',
       maxAge:7*24*60*60*1000
     })
-    //res.redirect(`${process.env.WP_URL}`);
-    res.redirect('http://localhost:5173')
+    if(user.wordpressUrl){
+      res.redirect('http://localhost:5173')
+    }
+    res.redirect('http://localhost:5173/wordpressConnection')
   }
 );
 
@@ -73,7 +75,7 @@ Authrouter.post('/login', async (req, res) => {
       maxAge: cookieAge,
     });
 
-    return res.status(200).json({ message: 'successful login', token });
+    return res.status(200).json({ message: 'successful login', token:token,user:user });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'internal server error' });
