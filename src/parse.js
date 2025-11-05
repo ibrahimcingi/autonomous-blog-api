@@ -24,7 +24,7 @@ export function parseContent(content) {
     // Alt-alt başlıkları bul (#####)
     const subsectionRegex = /#####\s*(.*?)\n([\s\S]*?)(?=(#####|$))/g;
     const subsections = [];
-    let subMatch;
+    let subMatch; 
 
     while ((subMatch = subsectionRegex.exec(sectionRaw)) !== null) {
       const subtitle = cleanTitle(subMatch[1].trim());

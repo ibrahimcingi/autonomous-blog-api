@@ -117,20 +117,117 @@ Authrouter.post('/SendResetPasswordEmail',async (req,res)=>{
   const emailOptions = {
     from: process.env.SENDER_EMAIL,
     to: user.email,
-    subject: "Password Reset OTP",
+    subject: "Şifre Sıfırlama Kodu",
+    text: `Merhaba ${user.name}, Şifre sıfırlama kodunuz: ${OTP}. Bu kod 15 dakika geçerlidir.`,
     html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2 style="color: #4CAF50;">Password Reset</h2>
-        <p>Hello <b>${user.name}</b>,</p>
-        <p>Your OTP is: <span style="font-size: 20px; color: red;">${OTP}</span></p>
-        <p>This code is valid for <b>15 minutes</b>.</p>
-        <a href="https://tamirbilgi.online" 
-           style="display:inline-block; padding:10px 20px; background:#4CAF50; color:#fff; text-decoration:none; border-radius:5px;">
-          Reset Password
-        </a>
-      </div>
+      <!DOCTYPE html>
+      <html lang="tr">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Şifre Sıfırlama</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td align="center" style="padding: 40px 0;">
+              <table role="presentation" style="width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 45px 30px; text-align: center;">
+                    <div style="background-color: rgba(255, 255, 255, 0.2); width: 85px; height: 85px; margin: 0 auto 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255, 255, 255, 0.3);">
+                      <span style="font-size: 42px;">🔐</span>
+                    </div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 0.3px;">Şifre Sıfırlama</h1>
+                  </td>
+                </tr>
+                
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px 35px;">
+                    <h2 style="margin: 0 0 22px 0; color: #2c3e50; font-size: 22px; font-weight: 600;">Merhaba ${user.name}! 👋</h2>
+                    <p style="margin: 0 0 28px 0; color: #555555; font-size: 16px; line-height: 1.7;">
+                      Şifrenizi sıfırlamak için bir talepte bulundunuz. Aşağıdaki doğrulama kodunu kullanarak işleme devam edebilirsiniz.
+                    </p>
+                    
+                    <!-- OTP Box -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 28px;">
+                      <tr>
+                        <td align="center" style="padding: 32px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; box-shadow: 0 5px 20px rgba(245, 87, 108, 0.35);">
+                          <p style="margin: 0 0 12px 0; color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.95;">Doğrulama Kodunuz</p>
+                          <p style="margin: 0; color: #ffffff; font-size: 38px; font-weight: 700; letter-spacing: 10px; font-family: 'Courier New', monospace;">
+                            ${OTP}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Timer Warning -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 28px;">
+                      <tr>
+                        <td style="padding: 20px 22px; background-color: #fff8e1; border-left: 4px solid #ffa726; border-radius: 8px;">
+                          <p style="margin: 0; color: #e65100; font-size: 14px; line-height: 1.7;">
+                            ⏱️ <strong>Önemli:</strong> Bu kod güvenlik nedeniyle <strong>15 dakika</strong> sonra geçerliliğini yitirecektir.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- CTA Button -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 28px;">
+                      <tr>
+                        <td align="center">
+                          <a href="https://tamirbilgi.online" style="display: inline-block; padding: 17px 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.35); letter-spacing: 0.3px;">
+                            Şifremi Sıfırla
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Security Notice -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 22px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; border: 1px solid #dee2e6;">
+                          <p style="margin: 0 0 12px 0; color: #2c3e50; font-size: 14px; font-weight: 600;">
+                            🛡️ Güvenlik Hatırlatması
+                          </p>
+                          <p style="margin: 0; color: #555555; font-size: 13px; line-height: 1.7;">
+                            Eğer bu işlemi siz yapmadıysanız, lütfen bu e-postayı dikkate almayın veya derhal destek ekibimizle iletişime geçin. Hesap güvenliğiniz bizim için önemlidir.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 32px 35px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #dee2e6;">
+                    <p style="margin: 0 0 12px 0; color: #6c757d; font-size: 14px; line-height: 1.6;">
+                      Yardıma mı ihtiyacınız var? Bize ulaşın:
+                    </p>
+                    <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 14px;">
+                      <a href="mailto:${process.env.SENDER_EMAIL}" style="color: #667eea; text-decoration: none; font-weight: 600;">${process.env.SENDER_EMAIL}e</a>
+                    </p>
+                    <div style="height: 1px; background-color: #dee2e6; margin: 18px auto; width: 80px;"></div>
+                    <p style="margin: 0; color: #adb5bd; font-size: 12px;">
+                      © 2024 Tamir Bilgi. Tüm hakları saklıdır.
+                    </p>
+                  </td>
+                </tr>
+                
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `
   }
+
+  
+  
       try{
         await transporter.sendMail(emailOptions)
         console.log('message sent')
