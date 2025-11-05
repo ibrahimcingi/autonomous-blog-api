@@ -49,6 +49,8 @@ app.get("/", (req, res) => {
  
 });
 
+
+
 app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
   const user = await UserSchema.findById(req.user.id);
@@ -153,5 +155,5 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`✅ Sunucu ${PORT} portunda çalışıyor`));
