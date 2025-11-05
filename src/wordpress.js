@@ -135,6 +135,8 @@ WordpressRouter.get('/summary', async (req, res) => {
 });
 
 
+
+
 export default WordpressRouter;
 
 
@@ -188,5 +190,43 @@ export async function uploadImageToWordPress(imageUrl) {
     url: uploadData.guid?.rendered || uploadData.source_url,
   };
 }
+
+
+export async function getOrCreateCategory(categoryName) {
+  const wpAuth = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64");
+
+  // 1️⃣ Var mı diye kontrol et
+  const existing = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories?search=${encodeURIComponent(categoryName)}`, {
+    headers: { Authorization: wpAuth },
+  });
+  const existingData = await existing.json();
+
+  if (Array.isArray(existingData) && existingData.length > 0) {
+    console.log(`✅ Kategori zaten var: ${existingData[0].id} (${existingData[0].name})`);
+    return existingData[0].id;
+  }
+
+  // 2️⃣ Yoksa oluştur
+  const created = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: wpAuth,
+    },
+    body: JSON.stringify({ name: categoryName }),
+  });
+
+  if (!created.ok) {
+    const errText = await created.text();
+    console.error("❌ Kategori oluşturulamadı:", errText);
+    throw new Error("Kategori oluşturulamadı");
+  }
+
+  const createdData = await created.json();
+  console.log(`🆕 Yeni kategori oluşturuldu: ${createdData.id} (${createdData.name})`);
+  return createdData.id;
+}
+
+
 
 

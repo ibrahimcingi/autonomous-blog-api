@@ -17,6 +17,7 @@ import sleep from "sleep-promise";
 import { generateFeaturedImage } from "./geminiGenerateImage.js";
 import WordpressRouter from "./wordpress.js";
 import { decryptText } from "../utils/crypto.js";
+import { getOrCreateCategory } from "./wordpress.js";
 
 
 
@@ -58,11 +59,12 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
   }
 
   const DecryptedPassword=decryptText(user.wordpressPassword)
-  console.log(DecryptedPassword)
   
 
     try {
-      const { categoryId, category,title } = req.body;
+      const {category,title } = req.body;
+
+      const categoryId = await getOrCreateCategory(category);
 
   
       const content = await generateBlogPost(category,title);
@@ -102,7 +104,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
           title: finalParsed.title || "Başlıksız Yazı",
           content: postContent,
           status: "publish",
-          categories: [51],
+          categories: [categoryId],
 
         }),
       });
