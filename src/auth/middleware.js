@@ -13,7 +13,7 @@ export const AuthMiddleWare=async (req,res,next)=>{
     if(decoded.id){
       req.user = { id: decoded.id };
     }else{
-      return res.json({'message':'Not Authorized'})
+      return res.status(401).json({'message':'Not Authorized'})
     }
     next()
 
