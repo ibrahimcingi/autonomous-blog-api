@@ -294,7 +294,7 @@ UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
 
 UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
   const userId=req.user.id
-  const {wordpressUrl,wordpressUsername,wordpressPassword}=req.body
+  const {wordpressUrl,wordpressUsername,wordpressPassword,categories}=req.body
 
   try{
     if(userId){
@@ -303,6 +303,7 @@ UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
       user.wordpressUrl=wordpressUrl
       user.wordpressUser=wordpressUsername
       user.wordpressPassword=encryptText(wordpressPassword)
+      user.categories=categories
   
       await user.save()
   
