@@ -148,7 +148,7 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
       id: p.id,
       title: p.title.rendered,
       date: p.date,
-      category: p.categories[0],
+      category: getCategoryName(p.categories[0]),
       status: p.status,
       url:p.link,
       views:1000
@@ -262,6 +262,26 @@ export async function getOrCreateCategory(categoryName) {
   const createdData = await created.json();
   console.log(`🆕 Yeni kategori oluşturuldu: ${createdData.id} (${createdData.name})`);
   return createdData.id;
+}
+
+
+export async function getCategoryName(categoryId){
+  await sleep(500)
+  const wpAuth = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64");
+
+  const response = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories/${categoryId}`, {
+    headers: {
+      Authorization: wpAuth, 
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Kategori alınamadı: ${response.statusText}`);
+  }
+
+  const categoryData = await response.json();
+  return categoryData.name
+
 }
 
 
