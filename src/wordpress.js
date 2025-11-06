@@ -136,6 +136,40 @@ WordpressRouter.get('/summary', async (req, res) => {
 });
 
 
+WordpressRouter.get('/BlogPosts',async (req,res)=>{
+  const { wordpressUrl } = req.query;
+  try{
+
+  const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts`);
+  const posts=await postsRes.json()
+
+  res.json({
+    BlogPosts: posts.map(p => ({
+      id: p.id,
+      title: p.title.rendered,
+      date: p.date,
+      category: p.categories[0],
+      status: p.status,
+      url:p.link,
+      views:1000
+    })),
+  });
+
+
+  }catch(error){
+    console.error('WordPress posts fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch posts', message: error.message });
+
+  }
+
+  
+  
+
+
+
+})
+
+
 
 
 export default WordpressRouter;
