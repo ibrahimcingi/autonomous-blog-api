@@ -219,7 +219,7 @@ UserRouter.delete('/deleteAll', async (req, res) => {
 UserRouter.delete('/deleteOne', async (req, res) => {
   const {email}=req.body
   try {
-    const result = await UserSchema.findOneAndDelete({email}); // tüm kullanıcıları siler
+    await UserSchema.findOneAndDelete({email}); 
     res.status(200).json({
       message: `kullanıcı silindi.`,
     });
@@ -231,7 +231,7 @@ UserRouter.delete('/deleteOne', async (req, res) => {
 UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
   const {name,email}=req.body
 
-  const userId=req.user.id
+  const userId=req.user?.id
   try{
     if(userId){
       const user=await UserSchema.findById(userId);
@@ -260,7 +260,7 @@ UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
 })
 
 UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
-  const userId=req.user.id
+  const userId=req.user?.id
   const {currentPassword,newPassword}=req.body
   try{
     if(userId){
@@ -293,7 +293,7 @@ UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
 })
 
 UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
-  const userId=req.user.id
+  const userId=req.user?.id
   const {wordpressUrl,wordpressUsername,wordpressPassword,categories}=req.body
 
   try{
@@ -327,18 +327,23 @@ UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
 })
 
 UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
-  const userId=req.user.id
+  const userId=req.user?.id
   const {emailOnPublish,weeklyReport,systemUpdates}=req.body
 
   try{
-    const user=await UserSchema.findById(userId)
+    if(userId){
+      const user=await UserSchema.findById(userId)
 
-    user.notifications.emailOnPublish=emailOnPublish
-    user.notifications.weeklyReport=weeklyReport
-    user.notifications.systemUpdates=systemUpdates
+      user.notifications.emailOnPublish=emailOnPublish
+      user.notifications.weeklyReport=weeklyReport
+      user.notifications.systemUpdates=systemUpdates
+  
+      await user.save()
+    }else{
+      res.status(401).json({ message: 'Not Authorized' });
 
-    await user.save()
-
+    }
+   
     return res.json({
       success:'true',
       message:'successfully updated notification settings'
@@ -354,6 +359,26 @@ UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
 
   }
 
+})
+
+UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user?.id
+  try{
+    if(userId){
+      await UserSchema.findByIdAndDelete(userId)
+
+      return res.json({
+        success:'true',
+        message:'successfully deleted account'
+      })
+
+    }
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+  }
 })
 
 
