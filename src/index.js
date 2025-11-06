@@ -18,6 +18,7 @@ import { generateFeaturedImage } from "./geminiGenerateImage.js";
 import WordpressRouter from "./wordpress.js";
 import { decryptText } from "../utils/crypto.js";
 import { getOrCreateCategory } from "./wordpress.js";
+import transporter from "./config/nodeMailer.js";
 
 
 
@@ -142,7 +143,22 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         });
         console.log(`✅ Featured image (${featuredResponse.id}) post #${postId} için eklendi`);
       }
-  
+
+      if(user.notifications.emailOnPublish){
+
+        const emailOptions = {
+          from: process.env.SENDER_EMAIL,
+          to: user.email,
+          subject: "Post Paylaşıldı",
+          text: `Merhaba ${user.name}! ${postData.name} adlı postunuz başarıyla paylaşıldı ✅ .`,
+        }
+        try{
+          transporter.sendMail(emailOptions)
+
+        }catch(error){
+          console.log(error.message)
+        }
+      }
       res.json({
         success: true,
         postId,
