@@ -46,7 +46,6 @@ Authrouter.get(
 Authrouter.post('/login', async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
-    console.log(password)
 
     if (!email) {
       return res.status(400).json({ message: 'email is required' });
@@ -72,8 +71,8 @@ Authrouter.post('/login', async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: cookieAge,
     });
 
