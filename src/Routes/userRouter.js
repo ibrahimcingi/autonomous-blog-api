@@ -326,5 +326,35 @@ UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
   }
 })
 
+UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user.id
+  const {emailOnPublish,weeklyReport,systemUpdates}=req.body
+
+  try{
+    const user=await UserSchema.findById(userId)
+
+    user.notifications.emailOnPublish=emailOnPublish
+    user.notifications.weeklyReport=weeklyReport
+    user.notifications.systemUpdates=systemUpdates
+
+    await user.save()
+
+    return res.json({
+      success:'true',
+      message:'successfully updated notification settings'
+    })
+
+
+
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+
+  }
+
+})
+
 
 

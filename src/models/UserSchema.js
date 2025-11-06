@@ -35,6 +35,13 @@ const UserSchema=new mongoose.Schema({
   wordpressUser:{type: String, required: false},
   categories: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
+
+  notifications: {
+    emailOnPublish: { type: Boolean, default: true },
+    weeklyReport: { type: Boolean, default: false },
+    systemUpdates: { type: Boolean, default: false }
+  }
+
   
 },{timestamps:true})
 
