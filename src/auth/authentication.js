@@ -35,8 +35,10 @@ Authrouter.get(
     })
     if(user.wordpressUrl){
       res.redirect('http://localhost:5173')
+    }else{
+      res.redirect('http://localhost:5173/wordpressConnection')
     }
-    res.redirect('http://localhost:5173/wordpressConnection')
+    
   }
 );
 
