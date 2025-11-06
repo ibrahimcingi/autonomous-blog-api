@@ -27,9 +27,14 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173", 
-  credentials: true,               
+  origin: [
+    "https://autonomous-blog-app-9oron.ondigitalocean.app",
+    "http://autonomous-blog-app-9oron.ondigitalocean.app",
+    "http://localhost:5173", // (local test için)
+  ],
+  credentials: true,
 }));
+
 app.use(express.json());
 
 app.use(cookieParser());
