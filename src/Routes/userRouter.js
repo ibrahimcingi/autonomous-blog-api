@@ -4,6 +4,8 @@ import transporter from '../config/nodeMailer.js'
 import dotenv from 'dotenv'
 import { AuthMiddleWare } from '../auth/middleware.js'
 import bcrypt from 'bcrypt'
+import { encryptText } from '../../utils/crypto.js'
+
 
 dotenv.config()
 
@@ -281,6 +283,39 @@ UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
       res.status(401).json({ message: 'Not Authorized' });
 
     }
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+
+  }
+})
+
+UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user.id
+  const {wordpressUrl,wordpressUsername,wordpressPassword}=req.body
+
+  try{
+    if(userId){
+      const user=await UserSchema.findById(userId)
+  
+      user.wordpressUrl=wordpressUrl
+      user.wordpressUser=wordpressUsername
+      user.wordpressPassword=encryptText(wordpressPassword)
+  
+      await user.save()
+  
+    }else{
+      res.status(401).json({ message: 'Not Authorized' });
+  
+    }
+
+    return res.json({
+      success:'true',
+      message:'successfully updated wordpress settings'
+    })
+
   }catch(error){
     return res.json({
       success:'false',
