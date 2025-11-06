@@ -140,7 +140,7 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
   const { wordpressUrl } = req.query;
   try{
 
-  const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts`);
+  const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=20`);
   const posts=await postsRes.json()
 
   const BlogPosts = await Promise.all(
@@ -168,12 +168,6 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
     res.status(500).json({ error: 'Failed to fetch posts', message: error.message });
 
   }
-
-  
-  
-
-
-
 })
 
 WordpressRouter.get('/getCategoryName',async (req,res)=>{
