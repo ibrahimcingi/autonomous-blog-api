@@ -3,6 +3,7 @@ import UserSchema from '../models/UserSchema.js'
 import transporter from '../config/nodeMailer.js'
 import dotenv from 'dotenv'
 import { AuthMiddleWare } from '../auth/middleware.js'
+import bcrypt from 'bcrypt'
 
 dotenv.config()
 
@@ -247,9 +248,6 @@ UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
       res.status(401).json({ message: 'Not Authorized' });
 
     }
-    
-
-
   }catch(error){
     return res.json({
       success:'false',
@@ -257,9 +255,39 @@ UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
     })
 
   }
+})
 
+UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user.id
+  const {currentPassword,newPassword}=req.body
+  try{
+    if(userId){
+      const user=await UserSchema.findById(userId);
 
+    const isMatch = await bcrypt.compare(String(currentPassword), String(user.password));
+    if (!isMatch) {
+      return res.status(401).json({ message: 'invalid password' });
+    }
+      user.password=newPassword
 
+      await user.save() 
+
+      return res.json({
+        success:'true',
+        message:'successfully changed password'
+      })
+
+    }else{
+      res.status(401).json({ message: 'Not Authorized' });
+
+    }
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+
+  }
 })
 
 
