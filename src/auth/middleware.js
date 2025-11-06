@@ -6,7 +6,7 @@ dotenv.config()
 export const AuthMiddleWare=async (req,res,next)=>{
   const {token} = req.cookies
   if(!token){
-    return res.json({'message':'Not Authorized'})
+    return res.status(401).json({'message':'Not Authorized'})
   }
   try{
     const decoded= jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
