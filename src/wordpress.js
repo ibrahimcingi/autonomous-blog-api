@@ -143,17 +143,24 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
   const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts`);
   const posts=await postsRes.json()
 
-  res.json({
-    BlogPosts: posts.map(p => ({
-      id: p.id,
-      title: p.title.rendered,
-      date: p.date,
-      category: getCategoryName(p.categories[0]),
-      status: p.status,
-      url:p.link,
-      views:1000
-    })),
-  });
+  const BlogPosts = await Promise.all(
+    posts.map(async (p) => {
+      const categoryName = await getCategoryName(p.categories[0]);
+  
+      return {
+        id: p.id,
+        title: p.title.rendered,
+        date: p.date,
+        category: categoryName,
+        status: p.status,
+        url: p.link,
+        views: 1000
+      };
+    })
+  );
+  
+  res.json({ BlogPosts });
+  
 
 
   }catch(error){
@@ -167,6 +174,14 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
 
 
 
+})
+
+WordpressRouter.get('/getCategoryName',async (req,res)=>{
+  const {categoryId}=req.body
+  const CategoryName=await getCategoryName(categoryId)
+  res.json({
+    name:CategoryName
+  })
 })
 
 
