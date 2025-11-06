@@ -225,5 +225,42 @@ UserRouter.delete('/deleteOne', async (req, res) => {
   }
 });
 
+UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
+  const {name,email}=req.body
+
+  const userId=req.user.id
+  try{
+    if(userId){
+      const user=await UserSchema.findById(userId);
+
+      user.name=name;
+      user.email=email
+
+      await user.save()
+
+      return res.json({
+        success:'true',
+        message:'successfully saved'
+      })
+
+    }else{
+      res.status(401).json({ message: 'Not Authorized' });
+
+    }
+    
+
+
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+
+  }
+
+
+
+})
+
 
 
