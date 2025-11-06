@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt'
 import UserSchema from "./models/UserSchema.js";
 import { encryptText } from "../utils/crypto.js";
 import sleep from "sleep-promise";
+import { formatDateReadable } from "./config/dateConfig.js";
 
 dotenv.config()
 
@@ -124,7 +125,7 @@ WordpressRouter.get('/summary', async (req, res) => {
       recentPosts: recentPosts.map(p => ({
         id: p.id,
         title: p.title.rendered,
-        date: p.date,
+        date: formatDateReadable(p.date),
         category: p.categories[0],
         status: p.status,
       })),
@@ -150,7 +151,7 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
       return {
         id: p.id,
         title: p.title.rendered,
-        date: p.date,
+        date: formatDateReadable(p.date),
         category: categoryName,
         status: p.status,
         url: p.link,
