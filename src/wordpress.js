@@ -92,7 +92,7 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
 })
 
 
-WordpressRouter.get('/summary', async (req, res) => {
+WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
   const { wordpressUrl } = req.query;
   const user=req.user.id
   const cacheKey = `summary:${wordpressUrl}`;
