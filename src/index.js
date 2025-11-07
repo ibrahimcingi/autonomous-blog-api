@@ -155,14 +155,154 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         const emailOptions = {
           from: process.env.SENDER_EMAIL,
           to: user.email,
-          subject: "Post Paylaşıldı",
-          text: `Merhaba ${user.name}! ${postData.name} adlı postunuz başarıyla paylaşıldı ✅ .`,
-        }
-        try{
-          transporter.sendMail(emailOptions)
-
-        }catch(error){
-          console.log(error.message)
+          subject: "🎉 Yeni Blogunuz Yayınlandı!",
+          html: `
+            <!DOCTYPE html>
+            <html lang="tr">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Blog Yayınlandı</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #0f172a;">
+                <tr>
+                  <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: linear-gradient(135deg, #1e293b 0%, #312e81 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);">
+                      
+                      <!-- Header -->
+                      <tr>
+                        <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);">
+                          <div style="display: inline-block; background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                          </div>
+                          <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                            AutoBlog
+                          </h1>
+                        </td>
+                      </tr>
+        
+                      <!-- Success Icon -->
+                      <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center;">
+                          <div style="display: inline-block; background: rgba(34, 197, 94, 0.2); padding: 20px; border-radius: 50%; margin-bottom: 20px;">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                              <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                          </div>
+                          <h2 style="margin: 0 0 10px; color: #ffffff; font-size: 32px; font-weight: 700;">
+                            Tebrikler! 🎉
+                          </h2>
+                          <p style="margin: 0; color: #94a3b8; font-size: 16px; line-height: 1.6;">
+                            Blogunuz başarıyla yayınlandı
+                          </p>
+                        </td>
+                      </tr>
+        
+                      <!-- Content -->
+                      <tr>
+                        <td style="padding: 20px 40px;">
+                          <p style="margin: 0 0 20px; color: #e2e8f0; font-size: 16px; line-height: 1.6;">
+                            Merhaba <strong style="color: #ffffff;">${user.name}</strong>,
+                          </p>
+                          <p style="margin: 0 0 30px; color: #cbd5e1; font-size: 15px; line-height: 1.6;">
+                            <strong style="color: #a855f7; font-size: 18px;">"${postData.name}"</strong> başlıklı blogunuz WordPress sitenizde başarıyla yayınlandı!
+                          </p>
+        
+                          <!-- Post Info Card -->
+                          <table role="presentation" style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 30px;">
+                            <tr>
+                              <td style="padding: 20px;">
+                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                  <tr>
+                                    <td style="padding: 8px 0; color: #94a3b8; font-size: 13px; width: 100px;">
+                                      📝 Başlık:
+                                    </td>
+                                    <td style="padding: 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">
+                                      ${postData.name}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="padding: 8px 0; color: #94a3b8; font-size: 13px;">
+                                      🏷️ Kategori:
+                                    </td>
+                                    <td style="padding: 8px 0;">
+                                      <span style="display: inline-block; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                                        ${postData.category || 'Genel'}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="padding: 8px 0; color: #94a3b8; font-size: 13px;">
+                                      📅 Tarih:
+                                    </td>
+                                    <td style="padding: 8px 0; color: #e2e8f0; font-size: 14px;">
+                                      ${new Date().toLocaleDateString('tr-TR', { 
+                                        day: 'numeric', 
+                                        month: 'long', 
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })}
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+        
+                          <!-- CTA Button -->
+                          <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                            <tr>
+                              <td align="center">
+                                <a href="${postData.link || '#'}" style="display: inline-block; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);">
+                                  🌐 Blogu Görüntüle
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+        
+                          <p style="margin: 0; color: #94a3b8; font-size: 14px; line-height: 1.6; text-align: center;">
+                            Blog otomatik olarak AI tarafından oluşturuldu ve yayınlandı
+                          </p>
+                        </td>
+                      </tr>
+        
+                      <!-- Footer -->
+                      <tr>
+                        <td style="padding: 30px 40px; background: rgba(0, 0, 0, 0.2); text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                          <p style="margin: 0 0 10px; color: #94a3b8; font-size: 13px;">
+                            Bu e-posta AutoBlog tarafından otomatik olarak gönderilmiştir
+                          </p>
+                          <p style="margin: 0; color: #64748b; font-size: 12px;">
+                            © 2025 AutoBlog. Tüm hakları saklıdır.
+                          </p>
+                          <div style="margin-top: 15px;">
+                            <a href="#" style="color: #a855f7; text-decoration: none; font-size: 12px; margin: 0 10px;">Ayarlar</a>
+                            <span style="color: #475569;">•</span>
+                            <a href="#" style="color: #a855f7; text-decoration: none; font-size: 12px; margin: 0 10px;">Bildirimler</a>
+                          </div>
+                        </td>
+                      </tr>
+        
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+          `,
+          text: `Merhaba ${user.name}! ${postData.name} adlı postunuz başarıyla paylaşıldı ✅ .`
+        };
+        
+        try {
+          await transporter.sendMail(emailOptions);
+          console.log('✅ Email başarıyla gönderildi');
+        } catch (error) {
+          console.log('❌ Email gönderme hatası:', error.message);
         }
       }
       res.json({
