@@ -94,10 +94,21 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
 
 WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
   const { wordpressUrl } = req.query;
-  const user=req.user.id
+  const userId=req.user.id
   const cacheKey = `summary:${wordpressUrl}`;
 
   try {
+    if (!userId) {
+      console.log('not authorized')
+      return res.status(401).json({ message: "Not Authorized" });
+    }
+    const user = await UserSchema.findById(userId);
+    if (!user) {
+      console.log('user not found')
+      return res.status(401).json({ message: "user not authenticated " });
+      
+    }
+
 
     const cached = await redisClient.get(cacheKey);
     if (cached) {
