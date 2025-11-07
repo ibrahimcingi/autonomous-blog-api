@@ -70,11 +70,11 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
   const DecryptedPassword=decryptText(user.wordpressPassword)
   
-
     try {
       const {category,title } = req.body;
 
       const categoryId = await getOrCreateCategory(category,user.wordpressUser,user.wordpressPassword,user.wordpressUrl);
+      console.log("category created succesfully",categoryId)
 
   
       const content = await generateBlogPost(category,title);
@@ -91,7 +91,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
       const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt, 3);
       let featuredResponse = null;
       if (featuredImageUrl) {
-        featuredResponse = await uploadImageToWordPress(featuredImageUrl);
+        featuredResponse = await uploadImageToWordPress(featuredImageUrl,user.wordpressUrl,DecryptedPassword,user.wordpressUser);
         console.log(`✅ Featured image yüklendi: ${featuredResponse.id}`);
         await new Promise(r => setTimeout(r, 2000)); // WP'nin meta işlemini beklet
       }
@@ -232,7 +232,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
                                     </td>
                                     <td style="padding: 8px 0;">
                                       <span style="display: inline-block; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;">
-                                        ${getCategoryName(postData.categories[0],user.wordpressUser,user.wordpressPassword,user.wordpressUrl) || 'Genel'}
+                                        ${await getCategoryName(postData.categories[0],user.wordpressUser,user.wordpressPassword,user.wordpressUrl) || 'Genel'}
                                       </span>
                                     </td>
                                   </tr>

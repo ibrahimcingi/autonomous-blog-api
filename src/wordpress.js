@@ -225,6 +225,13 @@ WordpressRouter.get('/BlogPosts',AuthMiddleWare,async (req,res)=>{
   }
 })
 
+WordpressRouter.post('/getCategoryName',async (req,res)=>{
+  const {categoryId}=req.body
+  res.json({
+    name:await getCategoryName(categoryId,"ibrahim","iVt9l0JqDtCS7ydmDmM2xQ==:SFw6gdhE5XIGIdiCoergFREM5fR1TRSp6j3bMvOcn6o=","https://tamirbilgi.online")
+  })
+})
+
 
 
 
@@ -233,7 +240,7 @@ export default WordpressRouter;
 
 
 
-export async function uploadImageToWordPress(imageUrl) {
+export async function uploadImageToWordPress(imageUrl,wordpressUrl,wordpressPassword,wordpressUser) {
   let buffer;
 
   if (imageUrl.startsWith("data:image")) {
@@ -250,12 +257,12 @@ export async function uploadImageToWordPress(imageUrl) {
     contentType: "image/png",
   });
 
-  const upload = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/media`, {
+  const upload = await fetch(`${wordpressUrl}/wp-json/wp/v2/media`, {
     method: "POST",
     headers: {
       Authorization:
         "Basic " +
-        Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64"),
+        Buffer.from(`${wordpressUser}:${wordpressPassword}`).toString("base64"),
     },
     body: form,
   });
@@ -284,7 +291,10 @@ export async function uploadImageToWordPress(imageUrl) {
 
 
 export async function getOrCreateCategory(categoryName,wordpressUsername,wordpressPassword,wordpressUrl) {
+  
   const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${decryptText(wordpressPassword)}`).toString("base64");
+  //console.log(decryptText(wordpressPassword))
+  //console.log(wordpressPassword)
 
   // 1️⃣ Var mı diye kontrol et
   const existing = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories?search=${encodeURIComponent(categoryName)}`, {
@@ -319,6 +329,7 @@ export async function getOrCreateCategory(categoryName,wordpressUsername,wordpre
   console.log(`🆕 Yeni kategori oluşturuldu: ${createdData.id} (${createdData.name})`);
   return createdData.id;
 }
+
 
 
 export async function getCategoryName(categoryId,wordpressUsername,wordpressPassword,wordpressUrl){
