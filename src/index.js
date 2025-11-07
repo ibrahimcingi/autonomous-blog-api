@@ -74,7 +74,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     try {
       const {category,title } = req.body;
 
-      const categoryId = await getOrCreateCategory(category,user.wordpressUser,user.wordpressPassword,user.wordpressUrl);
+      const categoryId = await getOrCreateCategory(category,user.wordpressUser,DecryptedPassword,user.wordpressUrl);
 
   
       const content = await generateBlogPost(category,title);
