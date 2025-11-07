@@ -278,11 +278,11 @@ export async function uploadImageToWordPress(imageUrl) {
 }
 
 
-export async function getOrCreateCategory(categoryName) {
-  const wpAuth = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64");
+export async function getOrCreateCategory(categoryName,wordpressUsername,wordpressPassword,wordpressUrl) {
+  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${wordpressPassword}`).toString("base64");
 
   // 1️⃣ Var mı diye kontrol et
-  const existing = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories?search=${encodeURIComponent(categoryName)}`, {
+  const existing = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories?search=${encodeURIComponent(categoryName)}`, {
     headers: { Authorization: wpAuth },
   });
   const existingData = await existing.json();
@@ -295,7 +295,7 @@ export async function getOrCreateCategory(categoryName) {
   }
 
   // 2️⃣ Yoksa oluştur
-  const created = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories`, {
+  const created = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
