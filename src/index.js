@@ -74,7 +74,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     try {
       const {category,title } = req.body;
 
-      const categoryId = await getOrCreateCategory(category,user.wordpressUser,DecryptedPassword,user.wordpressUrl);
+      const categoryId = await getOrCreateCategory(category,user.wordpressUser,user.wordpressPassword,user.wordpressUrl);
 
   
       const content = await generateBlogPost(category,title);
@@ -232,7 +232,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
                                     </td>
                                     <td style="padding: 8px 0;">
                                       <span style="display: inline-block; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;">
-                                        ${getCategoryName(postData.categories[0],user.wordpressUser,DecryptedPassword,user.wordpressUrl) || 'Genel'}
+                                        ${getCategoryName(postData.categories[0],user.wordpressUser,user.wordpressPassword,user.wordpressUrl) || 'Genel'}
                                       </span>
                                     </td>
                                   </tr>
