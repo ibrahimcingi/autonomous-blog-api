@@ -5,7 +5,8 @@ import express from 'express'
 import { AuthMiddleWare } from "./auth/middleware.js";
 import bcrypt from 'bcrypt'
 import UserSchema from "./models/UserSchema.js";
-import { encryptText } from "../utils/crypto.js";
+import { encryptText,decryptText } from "../utils/crypto.js";
+
 import sleep from "sleep-promise";
 import { formatDateReadable } from "./config/dateConfig.js";
 import redisClient from "./config/redis.js";
@@ -283,7 +284,7 @@ export async function uploadImageToWordPress(imageUrl) {
 
 
 export async function getOrCreateCategory(categoryName,wordpressUsername,wordpressPassword,wordpressUrl) {
-  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${wordpressPassword}`).toString("base64");
+  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${decryptText(wordpressPassword)}`).toString("base64");
 
   // 1️⃣ Var mı diye kontrol et
   const existing = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories?search=${encodeURIComponent(categoryName)}`, {
@@ -322,7 +323,7 @@ export async function getOrCreateCategory(categoryName,wordpressUsername,wordpre
 
 export async function getCategoryName(categoryId,wordpressUsername,wordpressPassword,wordpressUrl){
   await sleep(500)
-  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${wordpressPassword}`).toString("base64");
+  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${decryptText(wordpressPassword)}`).toString("base64");
 
   const response = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories/${categoryId}`, {
     headers: {
