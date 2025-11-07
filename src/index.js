@@ -81,7 +81,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
       await sleep(500)
       const parsed = parseContent(content);
       await sleep(500)
-      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category,3);
+      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category,3,user);
       await sleep(500)
       const finalParsed = parseContent(contentWithImages);
   

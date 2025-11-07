@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import sharp from 'sharp';
 import sleep from 'sleep-promise';
 import { uploadImageToWordPress } from "./wordpress.js";
+import { decryptText } from "../utils/crypto.js";
 
 dotenv.config();
 
@@ -67,7 +68,7 @@ export async function generateImage(prompt,retries) {
 
 
 
-export async function replaceImagePlaceholders(content, title, category, retries) {
+export async function replaceImagePlaceholders(content, title, category, retries,user) {
   const placeholders = content.match(/\{image:([^}]+)\}/g);
   if (!placeholders) return content;
 
@@ -95,8 +96,9 @@ export async function replaceImagePlaceholders(content, title, category, retries
         console.warn(`⚠️ Görsel oluşturulamadı: ${sectionTopic}`);
         return { placeholder, html: "" };
       }
+      const DecryptedPassword=decryptText(user.wordpressPassword)
 
-      const { id: uploadedImageId, url: uploadedImageUrl } = await uploadImageToWordPress(imageUrl);
+      const { id: uploadedImageId, url: uploadedImageUrl } = await uploadImageToWordPress(imageUrl,user.wordpressUrl,DecryptedPassword,user.wordpressUser);
 
       return {
         placeholder,
