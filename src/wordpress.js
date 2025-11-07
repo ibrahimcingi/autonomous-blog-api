@@ -168,10 +168,22 @@ WordpressRouter.get('/summary', async (req, res) => {
 });
 
 
-WordpressRouter.get('/BlogPosts',async (req,res)=>{
+WordpressRouter.get('/BlogPosts',AuthMiddleWare,async (req,res)=>{
   const { wordpressUrl } = req.query;
+  const userId=req.user.id
   const cacheKey=`BlogPosts:${wordpressUrl}`;
   try{
+    if (!userId) {
+      console.log('not authorized')
+      return res.status(401).json({ message: "Not Authorized" });
+    }
+    const userDoc = await UserSchema.findById(userId);
+    if (!userDoc) {
+      console.log('user not found')
+      return res.status(401).json({ message: "user not authenticated " });
+      
+    }
+
 
     const cached = await redisClient.get(cacheKey);
     if (cached) {
@@ -185,7 +197,7 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
 
   const BlogPosts = await Promise.all(
     posts.map(async (p) => {
-      const categoryName = await getCategoryName(p.categories[0]);
+      const categoryName = await getCategoryName(p.categories[0],userDoc.wordpressUser,userDoc.wordpressPassword,userDoc.wordpressUrl);
   
       return {
         id: p.id,
@@ -210,14 +222,6 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
     res.status(500).json({ error: 'Failed to fetch posts', message: error.message });
 
   }
-})
-
-WordpressRouter.get('/getCategoryName',async (req,res)=>{
-  const {categoryId}=req.body
-  const CategoryName=await getCategoryName(categoryId)
-  res.json({
-    name:CategoryName
-  })
 })
 
 
@@ -316,11 +320,11 @@ export async function getOrCreateCategory(categoryName,wordpressUsername,wordpre
 }
 
 
-export async function getCategoryName(categoryId){
+export async function getCategoryName(categoryId,wordpressUsername,wordpressPassword,wordpressUrl){
   await sleep(500)
-  const wpAuth = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASS}`).toString("base64");
+  const wpAuth = "Basic " + Buffer.from(`${wordpressUsername}:${wordpressPassword}`).toString("base64");
 
-  const response = await fetch(`${process.env.WP_URL}/wp-json/wp/v2/categories/${categoryId}`, {
+  const response = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories/${categoryId}`, {
     headers: {
       Authorization: wpAuth, 
     },
