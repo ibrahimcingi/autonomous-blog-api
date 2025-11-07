@@ -19,6 +19,7 @@ import WordpressRouter from "./wordpress.js";
 import { decryptText } from "../utils/crypto.js";
 import { getOrCreateCategory } from "./wordpress.js";
 import transporter from "./config/nodeMailer.js";
+import redisClient from "./config/redis.js";
 
 
 
@@ -143,6 +144,11 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         });
         console.log(`✅ Featured image (${featuredResponse.id}) post #${postId} için eklendi`);
       }
+
+      await redisClient.del(`summary:${user.wordpressUrl}`);
+      await redisClient.del(`BlogPosts:${user.wordpressUrl}`);
+
+
 
       if(user.notifications.emailOnPublish){
 

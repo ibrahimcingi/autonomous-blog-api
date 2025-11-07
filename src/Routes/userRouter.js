@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import { AuthMiddleWare } from '../auth/middleware.js'
 import bcrypt from 'bcrypt'
 import { encryptText } from '../../utils/crypto.js'
+import redisClient from '../config/redis.js'
 
 
 dotenv.config()
@@ -189,11 +190,20 @@ UserRouter.get('/me',AuthMiddleWare, async (req,res)=>{
         console.log('not authorized')
         return res.status(401).json({ message: "Not Authorized" });
       }
+      const cacheKey = `users:${userId}`;
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        console.log("✅ Redis cache hit");
+        return res.json(JSON.parse(cached));
+      }
       const userDoc = await UserSchema.findById(userId);
       if (!userDoc) {
         console.log('user not found')
         return res.status(401).json({ message: "user not authenticated " });
       }
+
+      await redisClient.setEx(cacheKey, 60, JSON.stringify(userDoc));
+
       return res.json({user:userDoc})
   }catch(error){
     res.status(500).json({ message: error.message });
@@ -236,6 +246,9 @@ UserRouter.put('/UpdateAccount',AuthMiddleWare,async (req,res)=>{
     if(userId){
       const user=await UserSchema.findById(userId);
 
+      if(user.name!==name || user.email!==email){
+        await redisClient.del(`users:${userId}`);
+      }
       user.name=name;
       user.email=email
 
@@ -299,13 +312,22 @@ UserRouter.put('/WordpressUpdate',AuthMiddleWare,async (req,res)=>{
   try{
     if(userId){
       const user=await UserSchema.findById(userId)
+
+      if(user.wordpressUrl!==wordpressUrl || user.wordpressUser!==wordpressUsername || user.wordpressPassword!==encryptText(wordpressPassword || user.categories!==categories)){
+
+        await redisClient.del(`summary:${user.wordpressUrl}`);
+
+      }
   
       user.wordpressUrl=wordpressUrl
       user.wordpressUser=wordpressUsername
       user.wordpressPassword=encryptText(wordpressPassword)
+      
       user.categories=categories
-  
       await user.save()
+
+      
+
   
     }else{
       res.status(401).json({ message: 'Not Authorized' });
@@ -333,6 +355,11 @@ UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
   try{
     if(userId){
       const user=await UserSchema.findById(userId)
+
+      if(user.notifications.emailOnPublish!==emailOnPublish|| user.notifications.weeklyReport!==weeklyReport || user.notifications.systemUpdates!==systemUpdates){
+        await redisClient.del(`users:${userId}`);
+      }
+      
 
       user.notifications.emailOnPublish=emailOnPublish
       user.notifications.weeklyReport=weeklyReport
@@ -366,6 +393,8 @@ UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
   try{
     if(userId){
       await UserSchema.findByIdAndDelete(userId)
+
+      await redisClient.del(`users:${userId}`);
 
       return res.json({
         success:'true',

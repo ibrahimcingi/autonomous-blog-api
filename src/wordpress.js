@@ -170,7 +170,15 @@ WordpressRouter.get('/summary', async (req, res) => {
 
 WordpressRouter.get('/BlogPosts',async (req,res)=>{
   const { wordpressUrl } = req.query;
+  const cacheKey=`BlogPosts:${wordpressUrl}`;
   try{
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      console.log("✅ Redis cache hit");
+      return res.json(JSON.parse(cached));
+    }
+
 
   const postsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=20`);
   const posts=await postsRes.json()
@@ -190,6 +198,8 @@ WordpressRouter.get('/BlogPosts',async (req,res)=>{
       };
     })
   );
+
+  await redisClient.setEx(cacheKey, 60, JSON.stringify({BlogPosts}))
   
   res.json({ BlogPosts });
   
