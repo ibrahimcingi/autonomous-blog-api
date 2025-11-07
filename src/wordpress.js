@@ -8,6 +8,7 @@ import UserSchema from "./models/UserSchema.js";
 import { encryptText } from "../utils/crypto.js";
 import sleep from "sleep-promise";
 import { formatDateReadable } from "./config/dateConfig.js";
+import redisClient from "./config/redis.js";
 
 dotenv.config()
 
@@ -92,8 +93,18 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
 
 WordpressRouter.get('/summary', async (req, res) => {
   const { wordpressUrl } = req.query;
+  const cacheKey = `summary:${wordpressUrl}`;
 
   try {
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      console.log("✅ Redis cache hit");
+      return res.json(JSON.parse(cached));
+    }
+
+    console.log("🌀 Cache miss → WordPress'ten veri çekiliyor...");
+
     const siteInfoRes = await fetch(`${wordpressUrl}/wp-json`);
     const siteInfo = await siteInfoRes.json();
 
@@ -111,6 +122,26 @@ WordpressRouter.get('/summary', async (req, res) => {
 
     const recentPostsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=3&orderby=date&order=desc`);
     const recentPosts = await recentPostsRes.json();
+
+    await redisClient.setEx(cacheKey, 90, JSON.stringify({
+      site: {
+        name: siteInfo.name,
+        url: siteInfo.url,
+      },
+      stats: {
+        totalPosts,
+        monthlyPosts: monthlyPosts.length,
+        activeCategories: categories.filter(c => c.count > 0).length,
+      },
+      recentPosts: recentPosts.map(p => ({
+        id: p.id,
+        title: p.title.rendered,
+        date: formatDateReadable(p.date),
+        category: p.categories[0],
+        status: p.status,
+      })),
+      
+    }));
 
     res.json({
       site: {

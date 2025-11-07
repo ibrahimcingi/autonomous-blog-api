@@ -26,6 +26,7 @@
     "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "redis": "^5.9.0",
     "sharp": "^0.34.4",
     "sleep-promise": "^9.1.0"
   },
