@@ -20,6 +20,7 @@ import { decryptText } from "../utils/crypto.js";
 import { getOrCreateCategory } from "./wordpress.js";
 import transporter from "./config/nodeMailer.js";
 import redisClient from "./config/redis.js";
+import { getCategoryName } from "./wordpress.js";
 
 
 
@@ -209,7 +210,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
                             Merhaba <strong style="color: #ffffff;">${user.name}</strong>,
                           </p>
                           <p style="margin: 0 0 30px; color: #cbd5e1; font-size: 15px; line-height: 1.6;">
-                            <strong style="color: #a855f7; font-size: 18px;">"${postData.name}"</strong> başlıklı blogunuz WordPress sitenizde başarıyla yayınlandı!
+                            <strong style="color: #a855f7; font-size: 18px;">"${postData.title.rendered}"</strong> başlıklı blogunuz WordPress sitenizde başarıyla yayınlandı!
                           </p>
         
                           <!-- Post Info Card -->
@@ -222,7 +223,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
                                       📝 Başlık:
                                     </td>
                                     <td style="padding: 8px 0; color: #ffffff; font-size: 14px; font-weight: 600;">
-                                      ${postData.name}
+                                      ${postData.title.rendered}
                                     </td>
                                   </tr>
                                   <tr>
@@ -231,7 +232,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
                                     </td>
                                     <td style="padding: 8px 0;">
                                       <span style="display: inline-block; background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600;">
-                                        ${postData.category || 'Genel'}
+                                        ${getCategoryName(postData.categories[0]) || 'Genel'}
                                       </span>
                                     </td>
                                   </tr>
@@ -295,7 +296,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
             </body>
             </html>
           `,
-          text: `Merhaba ${user.name}! ${postData.name} adlı postunuz başarıyla paylaşıldı ✅ .`
+          text: `Merhaba ${user.name}! ${postData.title.rendered} adlı postunuz başarıyla paylaşıldı ✅ .`
         };
         
         try {
