@@ -94,6 +94,7 @@ WordpressRouter.post('/save',AuthMiddleWare,async (req,res)=>{
 
 WordpressRouter.get('/summary', async (req, res) => {
   const { wordpressUrl } = req.query;
+  const user=req.user.id
   const cacheKey = `summary:${wordpressUrl}`;
 
   try {
@@ -118,8 +119,7 @@ WordpressRouter.get('/summary', async (req, res) => {
     const monthlyRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?after=${firstDay}&before=${lastDay}`);
     const monthlyPosts = await monthlyRes.json();
 
-    const categoriesRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories`);
-    const categories = await categoriesRes.json();
+    const categories = user.categories;
 
     const recentPostsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=3&orderby=date&order=desc`);
     const recentPosts = await recentPostsRes.json();
@@ -132,7 +132,7 @@ WordpressRouter.get('/summary', async (req, res) => {
       stats: {
         totalPosts,
         monthlyPosts: monthlyPosts.length,
-        activeCategories: categories.filter(c => c.count > 0).length,
+        activeCategories: categories.length,
       },
       recentPosts: recentPosts.map(p => ({
         id: p.id,
