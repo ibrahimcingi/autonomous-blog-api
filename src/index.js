@@ -26,12 +26,24 @@ import rateLimit from 'express-rate-limit';
 
 
 
-
-
-
 dotenv.config();
 
-const app = express();
+app.use(cors({
+  origin: function (origin, callback) {
+    const allowed = [
+      "https://autonomous-blog-app-9oron.ondigitalocean.app",
+      "http://autonomous-blog-app-9oron.ondigitalocean.app",
+      "http://localhost:5173"
+    ];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed for origin: " + origin));
+    }
+  },
+  credentials: true,
+}));
+
 
 
 const apiLimiter = rateLimit({
@@ -55,14 +67,7 @@ app.use(helmet({
   }
 }));
 
-app.use(cors({
-  origin: [
-    "https://autonomous-blog-app-9oron.ondigitalocean.app",
-    "http://autonomous-blog-app-9oron.ondigitalocean.app",
-    "http://localhost:5173", 
-  ],
-  credentials: true,
-}));
+
 
 
 
