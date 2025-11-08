@@ -28,6 +28,8 @@ import { getCategoryName } from "./wordpress.js";
 dotenv.config();
 
 const app = express();
+app.enable("trust proxy");
+
 
 app.use(cors({
   origin: [
