@@ -98,6 +98,8 @@ WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
   const userId=req.user.id
   const cacheKey = `summary:${wordpressUrl}`;
 
+  console.log(req.headers.origin)
+
   try {
     if (!userId) {
       console.log('not authorized')
