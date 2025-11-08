@@ -23,8 +23,8 @@ import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import csurf from 'csurf';
 import sanitizeHtml from 'sanitize-html';
+
 
 
 
@@ -55,9 +55,6 @@ app.use(helmet({
   }
 }));
 
-app.use(csurf({ cookie: true }));
-
-
 app.use(cors({
   origin: [
     "https://autonomous-blog-app-9oron.ondigitalocean.app",
@@ -66,6 +63,8 @@ app.use(cors({
   ],
   credentials: true,
 }));
+
+
 
 app.use(express.json());
 
