@@ -88,7 +88,7 @@ Authrouter.post('/login', async (req, res) => {
 
 Authrouter.post('/logout',(req,res)=>{
   try{
-    res.cookie('token', token, {
+    res.clearCookie('token',{
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // https only
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
