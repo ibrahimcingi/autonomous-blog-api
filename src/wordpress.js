@@ -138,45 +138,42 @@ WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
     const recentPostsRes = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts?per_page=3&orderby=date&order=desc`);
     const recentPosts = await recentPostsRes.json();
 
+    const recentPostsData = await Promise.all(
+      recentPosts.map(async (p) => ({
+        id: p.id,
+        title: p.title.rendered,
+        date: formatDateReadable(p.date),
+        category: await getCategoryName(
+          p.categories[0],
+          user.wordpressUser,
+          user.wordpressPassword,
+          user.wordpressUrl
+        ),
+        status: p.status,
+      }))
+    );
+
     await redisClient.setEx(cacheKey, 90, JSON.stringify({
-      site: {
-        name: siteInfo.name,
-        url: siteInfo.url,
-      },
+      site: { name: siteInfo.name, url: siteInfo.url },
       stats: {
         totalPosts,
         monthlyPosts: monthlyPosts.length,
         activeCategories: categories.length,
       },
-      recentPosts: recentPosts.map(async p => ({
-        id: p.id,
-        title: p.title.rendered,
-        date: formatDateReadable(p.date),
-        category: await getCategoryName(p.categories[0],userDoc.wordpressUser,userDoc.wordpressPassword,userDoc.wordpressUrl),
-        status: p.status,
-      })),
-      
+      recentPosts: recentPostsData,
     }));
-
-
+    
     res.json({
-      site: {
-        name: siteInfo.name,
-        url: siteInfo.url,
-      },
+      site: { name: siteInfo.name, url: siteInfo.url },
       stats: {
         totalPosts,
         monthlyPosts: monthlyPosts.length,
-        activeCategories: categories.filter(c => c.count > 0).length,
+        activeCategories: categories.length,
       },
-      recentPosts: recentPosts.map(async p => ({
-        id: p.id,
-        title: p.title.rendered,
-        date: formatDateReadable(p.date),
-        category: await getCategoryName(p.categories[0],userDoc.wordpressUser,userDoc.wordpressPassword,userDoc.wordpressUrl),
-        status: p.status,
-      })),
+      recentPosts: recentPostsData,
     });
+    
+    
   } catch (err) {
     console.error('WordPress summary fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch summary', message: err.message });
