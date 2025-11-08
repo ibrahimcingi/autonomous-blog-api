@@ -5,8 +5,8 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import passport from "passport";
 import "../config/passport.js";
-import { AuthMiddleWare } from "./middleware.js"
 import transporter from "../config/nodeMailer.js"
+import rateLimit from 'express-rate-limit';
 
 
 
@@ -43,8 +43,14 @@ Authrouter.get(
   }
 );
 
+const authLimiter = rateLimit({
+  windowMs: 15*60*1000,
+  max: 5,
+  message: 'Too many login attempts, try again later'
+});
 
-Authrouter.post('/login', async (req, res) => {
+
+Authrouter.post('/login',authLimiter, async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 

@@ -21,6 +21,10 @@ import { getOrCreateCategory } from "./wordpress.js";
 import transporter from "./config/nodeMailer.js";
 import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import csurf from 'csurf';
+import sanitizeHtml from 'sanitize-html';
 
 
 
@@ -30,12 +34,35 @@ dotenv.config();
 const app = express();
 app.enable("trust proxy");
 
+const apiLimiter = rateLimit({
+  windowMs: 15*60*1000, // 15 min
+  max: 100, // IP başına 100 istek
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', apiLimiter);
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      
+    }
+  }
+}));
+
+app.use(csurf({ cookie: true }));
+
 
 app.use(cors({
   origin: [
     "https://autonomous-blog-app-9oron.ondigitalocean.app",
     "http://autonomous-blog-app-9oron.ondigitalocean.app",
-    "http://localhost:5173", // (local test için)
+    "http://localhost:5173", 
   ],
   credentials: true,
 }));
@@ -104,6 +131,14 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         <h2 style="margin:10px">Sonuç</h2>
         ${finalParsed.conclusion}
       `;
+
+      const safePostContent = sanitizeHtml(postContent, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img','h1','h2']),
+        allowedAttributes: {
+          '*': ['class','id','style'],
+          'img': ['src','alt']
+        }
+      });
   
       const wpResponse = await fetch(`${user.wordpressUrl}/wp-json/wp/v2/posts`, {
         method: "POST",
@@ -114,7 +149,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         },
         body: JSON.stringify({
           title: finalParsed.title || "Başlıksız Yazı",
-          content: postContent,
+          content: safePostContent,
           status: "publish",
           categories: [categoryId],
 
