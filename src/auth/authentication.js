@@ -36,9 +36,9 @@ Authrouter.get(
     });
     
     if(user.wordpressUrl){
-      res.redirect('http://localhost:5173')
+      res.redirect('https://haveai.online')
     }else{
-      res.redirect('http://localhost:5173/wordpressConnection')
+      res.redirect('https://haveai.online/wordpressConnection')
     }
     
   }
