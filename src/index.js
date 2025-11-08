@@ -28,6 +28,8 @@ import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
+app.set("trust proxy", 1);
+
 app.use(cors({
   origin: function (origin, callback) {
     const allowed = [
@@ -44,7 +46,7 @@ app.use(cors({
   credentials: true,
 }));
 
-
+app.options("*", cors());
 
 const apiLimiter = rateLimit({
   windowMs: 15*60*1000, // 15 min
@@ -62,12 +64,9 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      
-    }
-  }
+    },
+  },
 }));
-
-
 
 
 
