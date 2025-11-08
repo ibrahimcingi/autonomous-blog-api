@@ -21,7 +21,6 @@ import { getOrCreateCategory } from "./wordpress.js";
 import transporter from "./config/nodeMailer.js";
 import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 dotenv.config();
@@ -58,16 +57,6 @@ const apiLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-    },
-  },
-}));
 
 
 
