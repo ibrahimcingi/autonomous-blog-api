@@ -146,15 +146,16 @@ WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
         monthlyPosts: monthlyPosts.length,
         activeCategories: categories.length,
       },
-      recentPosts: recentPosts.map(p => ({
+      recentPosts: recentPosts.map(async p => ({
         id: p.id,
         title: p.title.rendered,
         date: formatDateReadable(p.date),
-        category: p.categories[0],
+        category: await getCategoryName(p.categories[0],userDoc.wordpressUser,userDoc.wordpressPassword,userDoc.wordpressUrl),
         status: p.status,
       })),
       
     }));
+
 
     res.json({
       site: {
@@ -166,11 +167,11 @@ WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
         monthlyPosts: monthlyPosts.length,
         activeCategories: categories.filter(c => c.count > 0).length,
       },
-      recentPosts: recentPosts.map(p => ({
+      recentPosts: recentPosts.map(async p => ({
         id: p.id,
         title: p.title.rendered,
         date: formatDateReadable(p.date),
-        category: p.categories[0],
+        category: await getCategoryName(p.categories[0],userDoc.wordpressUser,userDoc.wordpressPassword,userDoc.wordpressUrl),
         status: p.status,
       })),
     });
