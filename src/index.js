@@ -23,7 +23,7 @@ import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import sanitizeHtml from 'sanitize-html';
+
 
 
 
