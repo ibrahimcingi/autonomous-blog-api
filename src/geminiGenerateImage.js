@@ -98,6 +98,8 @@ export async function replaceImagePlaceholders(content, title, category,retries,
       }
       const DecryptedPassword=decryptText(user.wordpressPassword)
 
+      console.log('here at replaceimagePlaceholder before upload image')
+
       const { id: uploadedImageId, url: uploadedImageUrl } = await uploadImageToWordPress(imageUrl,user.wordpressUrl,DecryptedPassword,user.wordpressUser);
 
       return {

@@ -255,6 +255,8 @@ export default WordpressRouter;
 export async function uploadImageToWordPress(imageUrl,wordpressUrl,wordpressPassword,wordpressUser) {
   let buffer;
   console.log(wordpressPassword)
+  console.log(wordpressUser)
+  console.log(wordpressUrl)
   
 
   if (imageUrl.startsWith("data:image")) {
