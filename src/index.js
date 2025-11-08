@@ -32,7 +32,7 @@ import sanitizeHtml from 'sanitize-html';
 dotenv.config();
 
 const app = express();
-app.enable("trust proxy");
+
 
 const apiLimiter = rateLimit({
   windowMs: 15*60*1000, // 15 min
@@ -131,13 +131,6 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         ${finalParsed.conclusion}
       `;
 
-      const safePostContent = sanitizeHtml(postContent, {
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img','h1','h2']),
-        allowedAttributes: {
-          '*': ['class','id','style'],
-          'img': ['src','alt']
-        }
-      });
   
       const wpResponse = await fetch(`${user.wordpressUrl}/wp-json/wp/v2/posts`, {
         method: "POST",
@@ -148,7 +141,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
         },
         body: JSON.stringify({
           title: finalParsed.title || "Başlıksız Yazı",
-          content: safePostContent,
+          content: postContent,
           status: "publish",
           categories: [categoryId],
 
