@@ -35,7 +35,7 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options('*', cors()); 
+
 
 
 
@@ -47,9 +47,6 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
-
-
-
 
 app.use(express.json());
 
