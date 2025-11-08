@@ -29,10 +29,11 @@ Authrouter.get(
     const { user, token } = req.user;
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: cookieAge,
+      secure: process.env.NODE_ENV === 'production', // https only
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
+      maxAge: 7*24*60*60*1000
     });
+    
     if(user.wordpressUrl){
       res.redirect('http://localhost:5173')
     }else{
@@ -71,10 +72,11 @@ Authrouter.post('/login', async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: cookieAge,
+      secure: process.env.NODE_ENV === 'production', // https only
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
+      maxAge: cookieAge
     });
+    
 
     return res.status(200).json({ message: 'successful login', token:token,user:user });
   } catch (error) {
@@ -83,21 +85,15 @@ Authrouter.post('/login', async (req, res) => {
   }
 });
 
-res.cookie('token', token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none',
-  maxAge: cookieAge,
-});
 
 Authrouter.post('/logout',(req,res)=>{
   try{
-    res.clearCookie('token',{
+    res.cookie('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      
-    })
+      secure: process.env.NODE_ENV === 'production', // https only
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
+    });
+    
   }catch(error){
     console.error("logout error",error)
     return res.status(500).json({message:error.message})
