@@ -51,7 +51,7 @@ const authLimiter = rateLimit({
 });
 
 
-Authrouter.post('/login',AuthMiddleWare,authLimiter,async (req, res) => {
+Authrouter.post('/login',authLimiter,async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 
