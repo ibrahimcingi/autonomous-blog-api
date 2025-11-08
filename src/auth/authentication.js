@@ -7,6 +7,7 @@ import passport from "passport";
 import "../config/passport.js";
 import transporter from "../config/nodeMailer.js"
 import rateLimit from 'express-rate-limit';
+import { AuthMiddleWare } from "./middleware.js"
 
 
 
@@ -50,7 +51,7 @@ const authLimiter = rateLimit({
 });
 
 
-Authrouter.post('/login',authLimiter, async (req, res) => {
+Authrouter.post('/login',AuthMiddleWare,authLimiter,async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 

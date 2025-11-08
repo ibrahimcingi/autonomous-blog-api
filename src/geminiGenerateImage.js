@@ -68,7 +68,7 @@ export async function generateImage(prompt,retries) {
 
 
 
-export async function replaceImagePlaceholders(content, title, category, retries,user) {
+export async function replaceImagePlaceholders(content, title, category,retries,user) {
   const placeholders = content.match(/\{image:([^}]+)\}/g);
   if (!placeholders) return content;
 

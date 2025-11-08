@@ -97,7 +97,7 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
     });
   }
 
-  const DecryptedPassword=decryptText(user.wordpressPassword)
+    const DecryptedPassword=decryptText(user.wordpressPassword)
   
     try {
       const {category,title } = req.body;

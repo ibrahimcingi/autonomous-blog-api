@@ -224,7 +224,7 @@ WordpressRouter.get('/BlogPosts',AuthMiddleWare,async (req,res)=>{
     })
   );
 
-  await redisClient.setEx(cacheKey, 60, JSON.stringify({BlogPosts}))
+  await redisClient.setEx(cacheKey, 90, JSON.stringify({BlogPosts}))
   
   res.json({ BlogPosts });
   
@@ -254,6 +254,8 @@ export default WordpressRouter;
 
 export async function uploadImageToWordPress(imageUrl,wordpressUrl,wordpressPassword,wordpressUser) {
   let buffer;
+  console.log(wordpressPassword)
+  
 
   if (imageUrl.startsWith("data:image")) {
     const base64Data = imageUrl.split(",")[1];

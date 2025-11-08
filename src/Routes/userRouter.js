@@ -202,7 +202,7 @@ UserRouter.get('/me',AuthMiddleWare, async (req,res)=>{
         return res.status(401).json({ message: "user not authenticated " });
       }
 
-      await redisClient.setEx(cacheKey, 60, JSON.stringify({user:userDoc}));
+      await redisClient.setEx(cacheKey, 120, JSON.stringify({user:userDoc}));
 
       return res.json({user:userDoc})
   }catch(error){
