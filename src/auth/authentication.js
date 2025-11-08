@@ -27,12 +27,12 @@ Authrouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { user, token } = req.user;
-    res.cookie('token',token,{
-      httpOnly:true,
-      secure:process.env.NODE_ENV==='production',
-      sameSite:process.env.NODE_ENV==='production' ? 'none':'strict',
-      maxAge:7*24*60*60*1000
-    })
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: cookieAge,
+    });
     if(user.wordpressUrl){
       res.redirect('http://localhost:5173')
     }else{
@@ -83,13 +83,26 @@ Authrouter.post('/login', async (req, res) => {
   }
 });
 
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  maxAge: cookieAge,
+});
+
 Authrouter.post('/logout',(req,res)=>{
-  res.clearCookie('token',{
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-    
-  })
+  try{
+    res.clearCookie('token',{
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      
+    })
+  }catch(error){
+    console.error("logout error",error)
+    return res.status(500).json({message:error.message})
+  }
+
   return res.status(200).json({ message: 'Logout successful' })
 })
 
