@@ -31,6 +31,7 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "https://autonomous-blog-app-9oron.ondigitalocean.app",
+    "https://haveai.online"
   ],
   credentials: true,
 }));
