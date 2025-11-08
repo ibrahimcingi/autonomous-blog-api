@@ -38,7 +38,7 @@ app.use(cors({
 
 
 
-
+/*
 const apiLimiter = rateLimit({
   windowMs: 15*60*1000, // 15 min
   max: 100, // IP başına 100 istek
@@ -46,7 +46,9 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+
 app.use('/api/', apiLimiter);
+*/
 
 app.use(express.json());
 
