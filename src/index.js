@@ -8,7 +8,6 @@ import { Authrouter } from "./auth/authentication.js";
 import { UserRouter } from "./Routes/userRouter.js";
 import { AuthMiddleWare } from "./auth/middleware.js";
 import cookieParser from "cookie-parser";
-import { generateImage } from "./geminiGenerateImage.js";
 import { uploadImageToWordPress } from "./wordpress.js";
 import UserSchema from "./models/UserSchema.js";
 import passport from "passport";
@@ -27,25 +26,17 @@ dotenv.config();
 
 const app = express();
 
-app.set("trust proxy", 1);
 
 app.use(cors({
-  origin: function (origin, callback) {
-    const allowed = [
-      "https://autonomous-blog-app-9oron.ondigitalocean.app",
-      "http://autonomous-blog-app-9oron.ondigitalocean.app",
-      "http://localhost:5173"
-    ];
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed for origin: " + origin));
-    }
-  },
+  origin: [
+    "http://localhost:5173",
+    "https://autonomous-blog-app-9oron.ondigitalocean.app",
+  ],
   credentials: true,
 }));
 
-app.options(/.*/, cors());
+app.options('*', cors()); 
+
 
 
 const apiLimiter = rateLimit({
@@ -69,6 +60,14 @@ app.use(passport.initialize());
 app.use('/api/users',UserRouter)
 app.use('/api/auth',Authrouter)
 app.use('/api/wordpress',WordpressRouter)
+
+app.use((err, req, res, next) => {
+  console.error("❌ Global Error:", err);
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.status(500).json({ success: false, error: err.message });
+});
+
 
 
 connectDB()
