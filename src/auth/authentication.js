@@ -44,17 +44,17 @@ Authrouter.get(
   }
 );
 
-/*
+
 
 const authLimiter = rateLimit({
   windowMs: 15*60*1000,
   max: 5,
   message: 'Too many login attempts, try again later'
 });
-*/
 
 
-Authrouter.post('/login',async (req, res) => {
+
+Authrouter.post('/login',authLimiter,async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 

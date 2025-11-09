@@ -38,8 +38,6 @@ app.use(cors({
 
 
 
-
-/*
 const apiLimiter = rateLimit({
   windowMs: 15*60*1000, // 15 min
   max: 100, // IP başına 100 istek
@@ -49,7 +47,7 @@ const apiLimiter = rateLimit({
 
 
 app.use('/api/', apiLimiter);
-*/
+
 
 app.use(express.json());
 
@@ -149,8 +147,8 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
   
       const postData = await wpResponse.json();
       const postId = postData.id;
-      const postUrl = postData.link;        // 🆕 Post linki
-      const publishDate = postData.date;    // 🆕 Yayın tarihi
+      const postUrl = postData.link;        
+      const publishDate = postData.date;    
       console.log(`✅ Post oluşturuldu: ${postId}`);
   
       if (featuredResponse && featuredResponse.id && postId) {

@@ -4,14 +4,14 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const redisClient = createClient({
   url: isProduction
-    ? process.env.REDIS_URL // DigitalOcean Valkey
+    ? process.env.REDIS_URL 
     : process.env.REDIS_URL_LOCAL || "redis://localhost:6379",
   socket: isProduction
     ? {
         tls: true,
-        rejectUnauthorized: false, // DO Valkey için gerekli
+        rejectUnauthorized: false, 
       }
-    : {}, // localde TLS yok
+    : {}, 
 });
 
 redisClient.on("error", (err) => console.error("❌ Redis Error:", err));
