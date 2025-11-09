@@ -36,6 +36,8 @@ const UserSchema=new mongoose.Schema({
   categories: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
 
+  currentPlan:{type:String,default:'Pro'},
+
   notifications: {
     emailOnPublish: { type: Boolean, default: true },
     weeklyReport: { type: Boolean, default: false },

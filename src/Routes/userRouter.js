@@ -388,6 +388,33 @@ UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
 
 })
 
+UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user?.id
+  const {SelectedPlan} = req.body
+  try{
+    if(userId){
+      const user=await UserSchema.findById(userId)
+      if(SelectedPlan!==user.currentPlan){
+        await redisClient.del(`users:${userId}`);
+      }
+      user.currentPlan=SelectedPlan
+
+      await user.save()
+    }else{
+      return res.status(401).json({
+        success:'false',
+        message:'Not Authorized'
+      })
+    }
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+
+  }
+})
+
 UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
   const userId=req.user?.id
   try{
