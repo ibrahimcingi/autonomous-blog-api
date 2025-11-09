@@ -36,7 +36,61 @@ const UserSchema=new mongoose.Schema({
   categories: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
 
-  currentPlan:{type:String,enum: ['free', 'pro', 'enterprise'],default:'Pro'},
+  currentPlan:{type:Object,enum:[
+    {
+      name: 'Free',
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      features: [
+        '5 Blog/Ay',
+        '2 Kategori',
+        'Temel AI Özellikleri',
+        'Email Desteği',
+        'WordPress Entegrasyonu'
+      ]
+    },
+    {
+      name: 'Pro',
+      monthlyPrice: 29,
+      yearlyPrice: 290,
+      features: [
+        'Sınırsız Blog',
+        'Sınırsız Kategori',
+        'Gelişmiş AI Özellikleri',
+        'Öncelikli Destek',
+        'WordPress Entegrasyonu',
+        'SEO Optimizasyonu',
+        'Analitik Dashboard'
+      ]
+    },
+    {
+      name: 'Enterprise',
+      monthlyPrice: 99,
+      yearlyPrice: 990,
+      features: [
+        'Sınırsız Blog',
+        'Sınırsız Kategori',
+        'Özel AI Modeli',
+        '7/24 Destek',
+        'Çoklu WordPress Siteleri',
+        'Özel SEO Stratejileri',
+        'Gelişmiş Analitik',
+        'API Erişimi',
+        'Özel Eğitim'
+      ]}],default:{
+        name: 'Pro',
+        monthlyPrice: 29,
+        yearlyPrice: 290,
+        features: [
+          'Sınırsız Blog',
+          'Sınırsız Kategori',
+          'Gelişmiş AI Özellikleri',
+          'Öncelikli Destek',
+          'WordPress Entegrasyonu',
+          'SEO Optimizasyonu',
+          'Analitik Dashboard'
+        ]
+      } },
   billingCycle:{type:String,enum: ['monthly', 'yearly'],default:'monthly'},
 
   notifications: {
@@ -45,7 +99,6 @@ const UserSchema=new mongoose.Schema({
     systemUpdates: { type: Boolean, default: false }
   }
 
-  
 },{timestamps:true})
 
 UserSchema.pre("save", async  function (next) {
