@@ -390,14 +390,15 @@ UserRouter.put('/NotificationsUpdate',AuthMiddleWare,async (req,res)=>{
 
 UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
   const userId=req.user?.id
-  const {SelectedPlan} = req.body
+  const {SelectedPlan,billingCycle} = req.body
   try{
     if(userId){
       const user=await UserSchema.findById(userId)
-      if(SelectedPlan!==user.currentPlan){
+      if(SelectedPlan!==user.currentPlan || billingCycle!==user.billingCycle){
         await redisClient.del(`users:${userId}`);
       }
       user.currentPlan=SelectedPlan
+      user.billingCycle=billingCycle
 
       await user.save()
 
