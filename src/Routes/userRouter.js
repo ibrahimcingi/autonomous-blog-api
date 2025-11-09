@@ -400,6 +400,11 @@ UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
       user.currentPlan=SelectedPlan
 
       await user.save()
+
+      return res.json({
+        success:'true',
+        message:'successfully updated plan'
+      })
     }else{
       return res.status(401).json({
         success:'false',
