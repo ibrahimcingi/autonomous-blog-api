@@ -36,7 +36,8 @@ const UserSchema=new mongoose.Schema({
   categories: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
 
-  currentPlan:{type:String,default:'Pro'},
+  currentPlan:{type:String,enum: ['free', 'pro', 'enterprise'],default:'Pro'},
+  billingCycle:{type:String,enum: ['monthly', 'yearly'],default:'monthly'},
 
   notifications: {
     emailOnPublish: { type: Boolean, default: true },
