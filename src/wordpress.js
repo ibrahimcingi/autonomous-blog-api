@@ -6,6 +6,7 @@ import { AuthMiddleWare } from "./auth/middleware.js";
 import bcrypt from 'bcrypt'
 import UserSchema from "./models/UserSchema.js";
 import { encryptText,decryptText } from "../utils/crypto.js";
+import { decodeHtmlEntities } from "../utils/decodeHtmlEntities";
 
 import sleep from "sleep-promise";
 import { formatDateReadable } from "./config/dateConfig.js";
@@ -141,7 +142,7 @@ WordpressRouter.get('/summary',AuthMiddleWare,async (req, res) => {
     const recentPostsData = await Promise.all(
       recentPosts.map(async (p) => ({
         id: p.id,
-        title: p.title.rendered,
+        title: decodeHtmlEntities(p.title.rendered),
         date: formatDateReadable(p.date),
         category: await getCategoryName(
           p.categories[0],
@@ -214,7 +215,7 @@ WordpressRouter.get('/BlogPosts',AuthMiddleWare,async (req,res)=>{
   
       return {
         id: p.id,
-        title: p.title.rendered,
+        title: decodeHtmlEntities(p.title.rendered),
         date: formatDateReadable(p.date),
         category: categoryName,
         status: p.status,
