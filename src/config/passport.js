@@ -34,7 +34,7 @@ passport.use(
             from: process.env.SENDER_EMAIL,
             to: email,
             subject: "Hesabınız Başarıyla Oluşturuldu",
-            text: `Merhaba ${name}! Hesabınız başarıyla oluşturuldu.`,
+            text: `Merhaba ${user.name}! Hesabınız başarıyla oluşturuldu.`,
             html: `
               <!DOCTYPE html>
               <html lang="tr">
@@ -62,7 +62,7 @@ passport.use(
                         <!-- Content -->
                         <tr>
                           <td style="padding: 45px 40px;">
-                            <h2 style="margin: 0 0 25px 0; color: #2c3e50; font-size: 24px; font-weight: 600;">Merhaba! ${name},</h2>
+                            <h2 style="margin: 0 0 25px 0; color: #2c3e50; font-size: 24px; font-weight: 600;">Merhaba! ${user.name},</h2>
                             <p style="margin: 0 0 25px 0; color: #555555; font-size: 16px; line-height: 1.8;">
                               Hesabınız başarıyla oluşturulmuştur. Platformumuza katıldığınız için teşekkür ederiz. 
                               Şimdi tüm özelliklerimizden yararlanmaya başlayabilirsiniz.
