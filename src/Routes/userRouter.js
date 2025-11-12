@@ -201,8 +201,11 @@ UserRouter.get('/me',AuthMiddleWare, async (req,res)=>{
         console.log('user not found')
         return res.status(401).json({ message: "user not authenticated " });
       }
+      if(userDoc.wordpressUrl){
+        await redisClient.setEx(cacheKey, 120, JSON.stringify({user:userDoc}));
+      }
 
-      await redisClient.setEx(cacheKey, 120, JSON.stringify({user:userDoc}));
+      
 
       return res.json({user:userDoc})
   }catch(error){
