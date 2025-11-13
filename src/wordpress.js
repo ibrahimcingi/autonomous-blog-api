@@ -11,6 +11,7 @@ import { decodeHtmlEntities } from "../utils/decodeHtmlEntities";
 import sleep from "sleep-promise";
 import { formatDateReadable } from "./config/dateConfig.js";
 import redisClient from "./config/redis.js";
+import { syncCategoriesForUser } from "../cronJobs/categoryJobs.js";
 
 
 dotenv.config()
@@ -36,6 +37,7 @@ WordpressRouter.post("/testConnection",async (req, res) => {
     });
 
     if (response.ok) {
+      await syncCategoriesForUser(wordpressUrl)
 
       return res.status(200).json({
         success: true,
