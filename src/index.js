@@ -21,6 +21,7 @@ import transporter from "./config/nodeMailer.js";
 import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
 import rateLimit from 'express-rate-limit';
+import { startCategorySyncJob } from "./cronJobs/categorySyncJob.js";
 
 dotenv.config();
 
@@ -67,8 +68,16 @@ app.use((err, req, res, next) => {
 });
 
 
+connectDB().then(()=>{
+  
+  startCategorySyncJob();
 
-connectDB()
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => console.log(`✅ Sunucu ${PORT} portunda çalışıyor`));
+
+})
+
+
 
 
 app.get("/", (req, res) => {
@@ -343,5 +352,3 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
 
 });
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`✅ Sunucu ${PORT} portunda çalışıyor`));

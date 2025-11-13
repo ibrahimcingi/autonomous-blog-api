@@ -1,5 +1,6 @@
 import { createClient } from "redis";
 
+
 const isProduction = process.env.NODE_ENV === "production";
 
 const redisClient = createClient({
@@ -14,10 +15,13 @@ const redisClient = createClient({
     : {}, 
 });
 
+
 redisClient.on("error", (err) => console.error("❌ Redis Error:", err));
 
 await redisClient.connect();
 
 console.log(`✅ Redis connected (${isProduction ? "Valkey Cloud" : "Local"})`);
 
+
 export default redisClient;
+

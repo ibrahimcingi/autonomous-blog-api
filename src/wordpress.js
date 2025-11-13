@@ -238,6 +238,8 @@ WordpressRouter.get('/BlogPosts',AuthMiddleWare,async (req,res)=>{
   }
 })
 
+
+
 WordpressRouter.post('/getCategoryName',async (req,res)=>{
   const {categoryId}=req.body
   res.json({

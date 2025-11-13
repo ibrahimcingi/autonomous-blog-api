@@ -97,7 +97,8 @@ const UserSchema=new mongoose.Schema({
     emailOnPublish: { type: Boolean, default: true },
     weeklyReport: { type: Boolean, default: false },
     systemUpdates: { type: Boolean, default: false }
-  }
+  },
+
 
 },{timestamps:true})
 
