@@ -109,14 +109,14 @@ app.post("/generate-and-post", AuthMiddleWare,async (req, res) => {
       await sleep(500)
       const parsed = parseContent(content);
       await sleep(500)
-      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category,3,user);
+      let contentWithImages = await replaceImagePlaceholders(content, parsed.title, category,2,user);
       await sleep(500)
       const finalParsed = parseContent(contentWithImages);
   
      
       const FeaturedPrompt = `${finalParsed.title} başlıklı ${category} kategorisinde yer alan bir blog yazısı için estetik, modern ve profesyonel bir featured image oluştur.Olabildiğince yazı kullanma.Eğer kullanırsan da yazım yanlışı yapma.`;
   
-      const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt, 3);
+      const featuredImageUrl = await generateFeaturedImage(FeaturedPrompt, 2);
       let featuredResponse = null;
       if (featuredImageUrl) {
         featuredResponse = await uploadImageToWordPress(featuredImageUrl,user.wordpressUrl,DecryptedPassword,user.wordpressUser);

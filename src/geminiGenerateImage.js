@@ -14,7 +14,7 @@ export async function generateImage(prompt,retries) {
 
   for (let i = 0; i < retries; i++) {
     console.log(`🌀 Görsel üretiliyor... (deneme ${i + 1}/${retries})`);
-    await sleep(2000);
+    await sleep(1000);
 
     try {
       const result = await model.generateContent({
@@ -73,7 +73,7 @@ export async function replaceImagePlaceholders(content, title, category,retries,
   if (!placeholders) return content;
 
   const imagePromises = placeholders.map(async (placeholder) => {
-    await sleep(2500);
+    await sleep(1500);
     try {
       const match = placeholder.match(/\{image:([^}]+)\}/);
       let sectionTopic = match ? match[1].trim() : "genel";
@@ -124,12 +124,6 @@ export async function replaceImagePlaceholders(content, title, category,retries,
 
 
 export async function generateFeaturedImage(prompt,retries) {
-  for (let i = 0; i < retries; i++) {
-    await sleep(1500)
-    const img = await generateImage(prompt,retries);
-    if (img && img !== "no_image") return img;
-    console.warn(`⚠️ Featured image üretilemedi (deneme ${i + 1}/${retries})`);
-    await new Promise(r => setTimeout(r, 2000));
-  }
-  return null;
+  return await generateImage(prompt, retries); 
+  
 }

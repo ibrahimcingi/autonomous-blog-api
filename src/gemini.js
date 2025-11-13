@@ -4,55 +4,58 @@ dotenv.config();
 
 export async function generateBlogPost(category,title) {
   const apiKey = process.env.GEMINI_API_KEY;
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent";
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
 
   const prompt = `
-  Sen bir uzman içerik editörüsün. 
-${category} kategorisinde, ${title} başlıklı SEO uyumlu, özgün, uzun ve detaylı bir blog yazısı oluştur.
-### **Başlık: ${title ? title:'konuya uygun, ilgi çekici bir başlık'}**
+  Sen deneyimli bir SEO içerik editörüsün. 
+Görevin: “${category}” kategorisinde, “${title}” başlıklı, detaylı ve özgün bir Türkçe blog yazısı oluşturmak.
 
-#### **Giriş**
-Konuya genel bir giriş yap. Okuyucuyu içeriğe hazırla.  
-Görsel placeholder ekle: {image:Giriş}
+Aşağıdaki yapıya MUTLAKA uy:
 
-#### **Alt Başlık 1: [ilk önemli alt konu]**
-Bu alt başlık altında detaylı açıklama yap.  
-Örnekler, veriler ve ipuçları ekle.  
-Görsel placeholder ekle: {image:[ilk önemli alt konu]}
+# Başlık: ${title ? title : "Konuyla uyumlu ilgi çekici bir başlık"}
 
+## Giriş
+- Konunun genel çerçevesini anlat.
+- Okuyucuyu yazıya hazırla.
+- Görsel placeholder ekle: {image:Giriş}
 
-##### [Alt Alt Başlık 1]
-Bu alt alt başlık altında daha teknik veya özel bir detay anlat.  
-Kısa paragraflar ve madde işaretleri kullan.  
-Görsel placeholder ekle: {image:[Alt Alt Başlık 1]}
+## Alt Başlık 1: [ilk önemli alt konu]
+- Bu konuyu açıklayıcı şekilde anlat.
+- Örnekler, ipuçları, kısa listeler ekle.
+- Yeni alt konuya geçerken görsel placeholder ekle:  
+  {image:[ilk önemli alt konu]}
 
-#### **Alt Başlık 2: [ikinci önemli alt konu]**
-Bu bölümde başka bir bakış açısı veya stratejik bilgi sun.  
-Kullanıcıyı bilgilendirici ve akıcı bir anlatım tarzı koru.  
-Görsel placeholder ekle: {image:[ikinci önemli alt konu]}
+### Alt Alt Başlık 1
+- Bu başlık altında daha spesifik teknik bir detay ver.
+- Madde işaretleri veya kısa paragraflar ekle.
+- Görsel placeholder ekle: {image:[Alt Alt Başlık 1]}
 
-##### [Alt Alt Başlık 2]
-Bu alt alt başlıkta konuya örnekler veya gerçek hayat senaryoları ekle.  
-Liste veya paragraf biçiminde olabilir.  
-Görsel placeholder ekle: {image:[Alt Alt Başlık 2]}
+## Alt Başlık 2: [ikinci önemli alt konu]
+- Konuya farklı bir perspektif veya ek bilgi ekle.
+- Akıcı, bilgilendirici bir ton kullan.
+- Görsel placeholder ekle: {image:[ikinci önemli alt konu]}
 
-#### **Sonuç**
-Yazıyı güçlü bir özet ve çağrı ile bitir.  
-Okuyucuya aksiyon aldıracak veya düşündürecek şekilde bitir.
+### Alt Alt Başlık 2
+- Gerçek hayat senaryosu veya örneklerle açıklama yap.
+- Madde madde veya paragraf şeklinde olabilir.
+- Görsel placeholder ekle: {image:[Alt Alt Başlık 2]}
+
+## Sonuç
+- Yazının ana mesajlarını toparla.
+- Okuyucuyu düşünmeye veya aksiyon almaya yönlendir.
 
 ---
 
-Kurallar:
+### Zorunlu Kurallar:
 - Dil: Türkçe
-- Her görsel placeholder’ında alt başlıkla ilişkili kısa bir konu etiketi bulunacak. Örnek: {image:sağlıklı beslenme}, {image:yapay zeka teknolojisi}
-- En az 500 kelime yaz.
-- Format yukarıdaki gibi olacak.
-- Görsel placeholder’larını yalnızca yeni bir alt konuya geçerken ekle.
-- Uzunluk: en az 500 kelime
-- Alt Başlık ve Alt Alt başlık sayısı yazıdan yazıya değişebilir ama format yukardaki gibi olacak.
-- Her bölümde açıklayıcı, öğretici ve doğal bir anlatım kullan.
-- Ortalamada her 250 kelime için 1 image placeholder'ı kullan.Ancak yeni bir konuya vesaire geçiyorsa yazı kullanabilirsin.
-- Başlık, alt başlık, alt-alt başlık ve sonuç formatını **mutlaka koru**.
+- Görsel placeholder’ları formatı: {image:konu_etiketi}
+- Ortalama her 250 kelimede 1 placeholder olmalı (alt başlık geçişlerinde eklemek serbesttir).
+- Minimum uzunluk: 500 kelime
+- Tüm başlık hiyerarşisi korunacak (Başlık → Alt Başlık → Alt Alt Başlık → Sonuç).
+- İçerik doğal, öğretici ve akıcı olmalı.
+- Her bölüm konuya uygun bilgiler içermeli.
+
+Bu formatı *kesinlikle* koruyarak içeriği oluştur.
 
 `;
 
@@ -70,6 +73,5 @@ Kurallar:
 
 
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Boş içerik döndü 😅";
-  console.log(text)
   return text;
 }
