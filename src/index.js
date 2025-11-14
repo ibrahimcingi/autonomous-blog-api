@@ -27,6 +27,8 @@ dotenv.config();
 
 const app = express();
 
+app.set('trust proxy', true);
+
 
 app.use(cors({
   origin: [
@@ -36,6 +38,9 @@ app.use(cors({
   ],
   credentials: true,
 }));
+
+
+
 
 
 
@@ -54,11 +59,15 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+
+
 app.use(passport.initialize());
 
 app.use('/api/users',UserRouter)
 app.use('/api/auth',Authrouter)
 app.use('/api/wordpress',WordpressRouter)
+
+
 
 app.use((err, req, res, next) => {
   console.error("❌ Global Error:", err);
