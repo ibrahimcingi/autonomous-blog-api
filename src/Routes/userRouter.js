@@ -444,7 +444,7 @@ UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
   }
 })
 
-UserRouter.put('/ClearLoginHistory',async ()=>{
+UserRouter.put('/ClearLoginHistory',async (req,res)=>{
   const userId=req.user?.id
 
   try{
