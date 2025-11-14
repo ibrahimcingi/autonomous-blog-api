@@ -467,7 +467,7 @@ UserRouter.delete("/deleteLoginHistory", AuthMiddleWare, async (req, res) => {
 
     // ObjectId karşılaştırmak için .equals kullan
     user.loginHistory = user.loginHistory.filter(
-      (item) => !item._id.equals(historyId)
+      (item) => !Number(item._id).equals(Number(historyId))
     );
 
     await user.save();
