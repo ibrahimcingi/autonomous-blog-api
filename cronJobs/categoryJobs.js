@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import UserSchema from "../models/UserSchema.js";
+import UserSchema from "../src/models/UserSchema.js";
 import redisClient from "../src/config/redis.js";
 
 export async function syncCategoriesForUser(wordpressUrl) {
