@@ -101,6 +101,7 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
     const geo = await geoRes.json();
     city = geo.city;
     country = geo.country_name;
+    console.log(city,country)
   } catch (err) {
     console.log("Geo lookup failed:", err.message);
   }
@@ -137,7 +138,7 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
     });
 
     user.loginHistory.push({
-      clientIp,
+      ip:clientIp,
       city,
       country,
       browser: deviceInfo.browser.name,
