@@ -9,6 +9,7 @@ import transporter from "../config/nodeMailer.js"
 import rateLimit from 'express-rate-limit';
 import { AuthMiddleWare } from "./middleware.js"
 import {UAParser} from "ua-parser-js";
+import redisClient from "../config/redis.js"
 
 
 
