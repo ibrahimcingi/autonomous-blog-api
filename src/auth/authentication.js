@@ -30,6 +30,23 @@ Authrouter.get(
   async (req, res) => {
     const { user, token } = req.user;
 
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const userAgent = req.headers["user-agent"];
+
+    const parser = new UAParser(userAgent);
+    const deviceInfo = parser.getResult();
+
+    let city = null, country = null;
+
+    try {
+      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geo = await geoRes.json();
+      city = geo.city;
+      country = geo.country_name;
+    } catch (err) {
+      console.log("Geo lookup failed:", err.message);
+    }
+
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // https only
@@ -37,8 +54,17 @@ Authrouter.get(
       maxAge: 7*24*60*60*1000
     });
 
-    user.lastLoginAt = new Date();
-    await user.save();
+    user.loginHistory.push({
+      ip,
+      city,
+      country,
+      browser: deviceInfo.browser.name,
+      os: deviceInfo.os.name,
+      deviceType: deviceInfo.device.type || "desktop",
+      loggedAt: new Date()
+    });
+
+    await user.save()
     
     if(user.wordpressUrl){
       res.redirect('https://haveai.online')
