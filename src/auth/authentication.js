@@ -71,7 +71,7 @@ Authrouter.get(
     await user.save()
     
     if(user.wordpressUrl){
-      res.redirect('https://haveai.online')
+      res.redirect('https://haveai.online/Dashboard')
     }else{
       res.redirect('https://haveai.online/wordpressConnection')
     }
