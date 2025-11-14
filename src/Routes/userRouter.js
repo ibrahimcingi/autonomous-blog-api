@@ -444,6 +444,34 @@ UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
   }
 })
 
+UserRouter.put('/ClearLoginHistory',async ()=>{
+  const userId=req.user?.id
+
+  try{
+    if(userId){
+      const user=await UserSchema.findById(userId)
+
+      user.loginHistory=[]
+
+      await user.save()
+
+      await redisClient.del(`users:${userId}`);
+
+      return res.json({
+        success:'true',
+        message:'successfully cleared Login History'
+      })
+
+    }
+  }catch(error){
+    return res.json({
+      success:'false',
+      message:error.message
+    })
+  }
+
+})
+
 UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
   const userId=req.user?.id
   try{
