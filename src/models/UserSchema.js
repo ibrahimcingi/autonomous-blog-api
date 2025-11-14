@@ -99,6 +99,21 @@ const UserSchema=new mongoose.Schema({
     systemUpdates: { type: Boolean, default: false }
   },
 
+  tokenVersion: { type: Number, default: 0 },
+
+  loginHistory: [
+    {
+      ip: String,
+      city: String,
+      country: String,
+      browser: String,
+      os: String,
+      deviceType: String,
+      loggedAt: { type: Date, default: Date.now }
+    }
+  ]
+  
+
 
 },{timestamps:true})
 

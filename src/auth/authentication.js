@@ -8,6 +8,7 @@ import "../config/passport.js";
 import transporter from "../config/nodeMailer.js"
 import rateLimit from 'express-rate-limit';
 import { AuthMiddleWare } from "./middleware.js"
+import UAParser from "ua-parser-js";
 
 
 
@@ -26,14 +27,18 @@ Authrouter.get(
 Authrouter.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  (req, res) => {
+  async (req, res) => {
     const { user, token } = req.user;
+
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // https only
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
       maxAge: 7*24*60*60*1000
     });
+
+    user.lastLoginAt = new Date();
+    await user.save();
     
     if(user.wordpressUrl){
       res.redirect('https://haveai.online')
@@ -55,6 +60,22 @@ const authLimiter = rateLimit({
 
 
 Authrouter.post('/login',authLimiter,async (req, res) => {
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
+
+  const parser = new UAParser(userAgent);
+  const deviceInfo = parser.getResult();
+
+  let city = null, country = null;
+
+  try {
+    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+    const geo = await geoRes.json();
+    city = geo.city;
+    country = geo.country_name;
+  } catch (err) {
+    console.log("Geo lookup failed:", err.message);
+  }
   try {
     const { email, password, rememberMe } = req.body;
 
@@ -63,7 +84,6 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
     }
 
     const user = await UserSchema.findOne({ email });
-    console.log(user.password)
     if (!user) {
       return res.status(401).json({ message: 'invalid email' });
     }
@@ -73,10 +93,11 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
       return res.status(401).json({ message: 'invalid password' });
     }
 
+  
     const expiresIn = rememberMe ? '7d' : '1h';
     const cookieAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
 
-    const token = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, {
+    const token = jwt.sign({ id: user._id,tokenVersion: user.tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn,
     });
 
@@ -86,7 +107,18 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
       maxAge: cookieAge
     });
-    
+
+    user.loginHistory.push({
+      ip,
+      city,
+      country,
+      browser: deviceInfo.browser.name,
+      os: deviceInfo.os.name,
+      deviceType: deviceInfo.device.type || "desktop",
+      loggedAt: new Date()
+    });
+
+    await user.save()
 
     return res.status(200).json({ message: 'successful login', token:token,user:user });
   } catch (error) {
@@ -110,6 +142,31 @@ Authrouter.post('/logout',(req,res)=>{
   }
 
   return res.status(200).json({ message: 'Logout successful' })
+})
+
+
+
+Authrouter.post('/logoutAll',AuthMiddleWare,async (req,res)=>{
+  const userId=req.user.id
+
+  try{
+    if (!userId) {
+      console.log('not authorized')
+      return res.status(401).json({ message: "Not Authorized" });
+    }
+    const user = await UserSchema.findById(userId);
+  
+    user.tokenVersion += 1;
+    await user.save();
+
+    return res.status(200).json({ message: 'Logout successful' })
+
+  }catch(error){
+    console.error("logout error",error)
+    return res.status(500).json({message:error.message})
+
+  }
+
 })
 
 

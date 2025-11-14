@@ -30,7 +30,8 @@
     "passport-google-oauth20": "^2.0.0",
     "redis": "^5.9.0",
     "sharp": "^0.34.4",
-    "sleep-promise": "^9.1.0"
+    "sleep-promise": "^9.1.0",
+    "ua-parser-js": "^2.0.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
