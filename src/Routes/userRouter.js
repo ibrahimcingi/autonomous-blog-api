@@ -472,6 +472,8 @@ UserRouter.delete("/deleteLoginHistory", AuthMiddleWare, async (req, res) => {
 
     await user.save();
 
+    await redisClient.del(`users:${userId}`);
+
     return res.json({
       success: true,
       message: "History item removed",
