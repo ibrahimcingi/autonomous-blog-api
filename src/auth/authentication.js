@@ -31,6 +31,7 @@ Authrouter.get(
     const { user, token } = req.user;
 
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const clientIp = ip.split(',')[0].trim();
     const userAgent = req.headers["user-agent"];
 
     const parser = new UAParser(userAgent);
@@ -39,7 +40,7 @@ Authrouter.get(
     let city = null, country = null;
 
     try {
-      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
       const geo = await geoRes.json();
       city = geo.city;
       country = geo.country_name;
@@ -55,7 +56,7 @@ Authrouter.get(
     });
 
     user.loginHistory.push({
-      ip,
+      clientIp,
       city,
       country,
       browser: deviceInfo.browser.name,
@@ -87,6 +88,7 @@ const authLimiter = rateLimit({
 
 Authrouter.post('/login',authLimiter,async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  const clientIp = ip.split(',')[0].trim();
   const userAgent = req.headers["user-agent"];
 
   const parser = new UAParser(userAgent);
@@ -95,7 +97,7 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
   let city = null, country = null;
 
   try {
-    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+    const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
     const geo = await geoRes.json();
     city = geo.city;
     country = geo.country_name;
@@ -135,7 +137,7 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
     });
 
     user.loginHistory.push({
-      ip,
+      clientIp,
       city,
       country,
       browser: deviceInfo.browser.name,
