@@ -444,6 +444,49 @@ UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
   }
 })
 
+UserRouter.delete("/deleteLoginHistory", AuthMiddleWare, async (req, res) => {
+  const userId = req.user.id;
+  const { historyId } = req.body;
+
+  try {
+    if (!userId) {
+      return res.json({
+        success: false,
+        message: "Not Authorized",
+      });
+    }
+
+    const user = await UserSchema.findById(userId);
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // ObjectId karşılaştırmak için .equals kullan
+    user.loginHistory = user.loginHistory.filter(
+      (item) => !item._id.equals(historyId)
+    );
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "History item removed",
+      loginHistory: user.loginHistory,
+    });
+
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+
 UserRouter.put('/ClearLoginHistory',AuthMiddleWare,async (req,res)=>{
   const userId=req.user.id
 
