@@ -152,6 +152,8 @@ Authrouter.post('/login', authLimiter, async (req, res) => {
       loggedAt: new Date()
     });
 
+    await redisClient.del(`users:${user._id}`);
+
     await user.save();
 
     return res.status(200).json({ message: 'successful login', token, user });
