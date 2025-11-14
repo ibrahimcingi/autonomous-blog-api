@@ -101,6 +101,7 @@ Authrouter.post('/login', authLimiter, async (req, res) => {
   try {
     const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
     const geo = await geoRes.json();
+    console.log(geo)
     city = geo.city || null;
     country = geo.country_name || null;
   } catch (err) {
