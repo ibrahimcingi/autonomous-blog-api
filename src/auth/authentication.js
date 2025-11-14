@@ -99,7 +99,7 @@ Authrouter.post('/login', authLimiter, async (req, res) => {
 
   // GEO LOOKUP (login'den bağımsız)
   try {
-    const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
+    const geoRes = await fetch(`http://ip-api.com/json/${clientIp}`);
     const geo = await geoRes.json();
     console.log(geo)
     city = geo.city || null;

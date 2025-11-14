@@ -26,6 +26,7 @@ import { startCategorySyncJob } from "../cronJobs/categoryJobs.js";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", true);
 
 
 
