@@ -86,8 +86,10 @@ const authLimiter = rateLimit({
 
 
 
-Authrouter.post('/login',authLimiter,async (req, res) => {
-  const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim();
+Authrouter.post('/login', authLimiter, async (req, res) => {
+  const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress)
+    .split(',')[0]
+    .trim();
   const userAgent = req.headers["user-agent"];
 
   const parser = new UAParser(userAgent);
@@ -95,67 +97,69 @@ Authrouter.post('/login',authLimiter,async (req, res) => {
 
   let city = null, country = null;
 
+  // GEO LOOKUP (login'den bağımsız)
   try {
     const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`);
     const geo = await geoRes.json();
-    city = geo.city;
-    country = geo.country_name;
-    console.log(city,country,clientIp,deviceInfo)
-
-    try {
-      const { email, password, rememberMe } = req.body;
-  
-      if (!email) {
-        return res.status(400).json({ message: 'email is required' });
-      }
-  
-      const user = await UserSchema.findOne({ email });
-      if (!user) {
-        return res.status(401).json({ message: 'invalid email' });
-      }
-  
-      const isMatch = await bcrypt.compare(String(password), String(user.password));
-      if (!isMatch) {
-        return res.status(401).json({ message: 'invalid password' });
-      }
-  
-    
-      const expiresIn = rememberMe ? '7d' : '1h';
-      const cookieAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
-  
-      const token = jwt.sign({ id: user._id,tokenVersion: user.tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn,
-      });
-  
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // https only
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // cross-site ise none
-        maxAge: cookieAge
-      });
-  
-      user.loginHistory.push({
-        ip:clientIp,
-        city,
-        country,
-        browser: deviceInfo.browser.name,
-        os: deviceInfo.os.name,
-        deviceType: deviceInfo.device.type || "desktop",
-        loggedAt: new Date()
-      });
-  
-      await user.save()
-  
-      return res.status(200).json({ message: 'successful login', token:token,user:user });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'internal server error' });
-    }
+    city = geo.city || null;
+    country = geo.country_name || null;
   } catch (err) {
     console.log("Geo lookup failed:", err.message);
   }
-  
+
+  // LOGIN KISMI
+  try {
+    const { email, password, rememberMe } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'email is required' });
+    }
+
+    const user = await UserSchema.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'invalid email' });
+    }
+
+    const isMatch = await bcrypt.compare(String(password), String(user.password));
+    if (!isMatch) {
+      return res.status(401).json({ message: 'invalid password' });
+    }
+
+    const expiresIn = rememberMe ? '7d' : '1h';
+    const cookieAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000;
+
+    const token = jwt.sign(
+      { id: user._id, tokenVersion: user.tokenVersion },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: cookieAge
+    });
+
+    user.loginHistory.push({
+      ip: clientIp,
+      city,
+      country,
+      browser: deviceInfo.browser.name,
+      os: deviceInfo.os.name,
+      deviceType: deviceInfo.device.type || "desktop",
+      loggedAt: new Date()
+    });
+
+    await user.save();
+
+    return res.status(200).json({ message: 'successful login', token, user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'internal server error' });
+  }
 });
+
 
 
 Authrouter.post('/logout',(req,res)=>{
