@@ -66,6 +66,8 @@ Authrouter.get(
       loggedAt: new Date()
     });
 
+    await redisClient.del(`users:${user._id}`);
+
     await user.save()
     
     if(user.wordpressUrl){
