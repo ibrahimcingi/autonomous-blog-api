@@ -21,7 +21,7 @@ import transporter from "./config/nodeMailer.js";
 import redisClient from "./config/redis.js";
 import { getCategoryName } from "./wordpress.js";
 import rateLimit from 'express-rate-limit';
-import { startCategorySyncJob } from "./cronJobs/categorySyncJob.js";
+import { startCategorySyncJob } from "../cronJobs/categoryJobs.js";
 
 dotenv.config();
 
