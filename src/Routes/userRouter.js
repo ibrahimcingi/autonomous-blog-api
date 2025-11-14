@@ -445,7 +445,7 @@ UserRouter.put('/PlanUpdate',AuthMiddleWare,async (req,res)=>{
 })
 
 UserRouter.put('/ClearLoginHistory',async (req,res)=>{
-  const userId=req.user?.id
+  const userId=req.user.id
 
   try{
     if(userId){
@@ -460,6 +460,12 @@ UserRouter.put('/ClearLoginHistory',async (req,res)=>{
       return res.json({
         success:'true',
         message:'successfully cleared Login History'
+      })
+
+    }else{
+      return res.json({
+        success:'false',
+        message:'Not Authorized'
       })
 
     }
