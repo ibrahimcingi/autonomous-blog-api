@@ -6,6 +6,7 @@ import { AuthMiddleWare } from '../auth/middleware.js'
 import bcrypt from 'bcrypt'
 import { encryptText } from '../../utils/crypto.js'
 import redisClient from '../config/redis.js'
+import { createSubscription } from '../../payments/stripe.js'
 
 
 dotenv.config()
@@ -544,6 +545,8 @@ UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
     })
   }
 })
+
+UserRouter.post('/create-subscription',createSubscription)
 
 
 
