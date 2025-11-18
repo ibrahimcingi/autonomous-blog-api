@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+console.log('Stripe key:', process.env.STRIPE_SECRET_KEY);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 console.log('Stripe key:', process.env.STRIPE_SECRET_KEY);
 
