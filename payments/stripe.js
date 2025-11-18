@@ -8,9 +8,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createSubscription = async (req, res) => {
   try {
-    const { email, paymentMethodId, planId } = req.body;
+    const { email, paymentMethodId, priceId } = req.body;
 
-    if (!email || !paymentMethodId || !planId) {
+    if (!email || !paymentMethodId || !priceId) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
@@ -26,7 +26,7 @@ export const createSubscription = async (req, res) => {
     // 2. Subscription oluştur
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
-      items: [{ price: planId }],
+      items: [{ price: priceId }],
       expand: ["latest_invoice.payment_intent"],
     });
 
