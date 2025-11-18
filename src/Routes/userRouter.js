@@ -546,7 +546,10 @@ UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
   }
 })
 
-UserRouter.post('/create-subscription',createSubscription)
+UserRouter.post('/create-subscription',async (req,res)=>{
+  console.log("🔥 SUBSCRIPTION ENDPOINT HIT");
+
+})
 
 
 
