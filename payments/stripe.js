@@ -31,6 +31,7 @@ export const createSubscription = async (req, res) => {
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [{ price: priceId }],
+      payment_behavior: "default_incomplete",
       expand: [
         "latest_invoice.payment_intent",
         "customer.invoice_settings.default_payment_method"
@@ -174,7 +175,7 @@ export const createSubscription = async (req, res) => {
                               <tr>
                                 <td style="padding: 8px 0; color: #94a3b8; font-size: 14px;">Ödeme Yöntemi:</td>
                                 <td style="padding: 8px 0; color: #ffffff; font-size: 14px;">
-                                  •••• •••• •••• ${card.slice(-4)}
+                                  •••• •••• •••• ${cardFromIntent.slice(-4)}
                                 </td>
                               </tr>
                               
