@@ -13,7 +13,8 @@ export const createSubscription = async (req, res) => {
 
     const price=billingInfo.cycle==='monthly' ? plan.monthlyPrice : plan.yearlyPrice
 
-    if (!billingInfo || !paymentMethodId || !priceId || plan) {
+
+    if (!billingInfo || !paymentMethodId || !priceId || !plan) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
