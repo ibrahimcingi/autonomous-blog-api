@@ -38,7 +38,7 @@ export const createSubscription = async (req, res) => {
     });
 
     const paymentIntent = subscription.latest_invoice.payment_intent;
-    const cardFromIntent = paymentIntent.charges.data[0].payment_method_details.card;
+    const card = subscription.customer.invoice_settings.default_payment_method.card;
     const transactionId = paymentIntent.id; 
 
 
@@ -174,7 +174,7 @@ export const createSubscription = async (req, res) => {
                               <tr>
                                 <td style="padding: 8px 0; color: #94a3b8; font-size: 14px;">Ödeme Yöntemi:</td>
                                 <td style="padding: 8px 0; color: #ffffff; font-size: 14px;">
-                                  •••• •••• •••• ${cardFromIntent.slice(-4)}
+                                  •••• •••• •••• ${card.slice(-4)}
                                 </td>
                               </tr>
                               
