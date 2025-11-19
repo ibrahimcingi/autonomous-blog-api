@@ -33,6 +33,7 @@ export const createSubscription = async (req, res) => {
       items: [{ price: priceId }],
       expand: [
         "latest_invoice.payment_intent",
+        "customer.invoice_settings.default_payment_method"
       ]
     });
 
