@@ -175,7 +175,7 @@ export const createSubscription = async (req, res) => {
                               <tr>
                                 <td style="padding: 8px 0; color: #94a3b8; font-size: 14px;">Ödeme Yöntemi:</td>
                                 <td style="padding: 8px 0; color: #ffffff; font-size: 14px;">
-                                  •••• •••• •••• ${cardFromIntent.slice(-4)}
+                                  •••• •••• •••• ${card.slice(-4)}
                                 </td>
                               </tr>
                               
