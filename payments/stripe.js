@@ -19,7 +19,7 @@ export const createSubscription = async (req, res) => {
 
     // 1. Customer oluştur
     const customer = await stripe.customers.create({
-      email,
+      email:billingInfo.email,
       payment_method: paymentMethodId,
       invoice_settings: {
         default_payment_method: paymentMethodId,
@@ -42,7 +42,7 @@ export const createSubscription = async (req, res) => {
 
     const emailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: formData.email,
+      to: billingInfo.email,
       subject: "🎉 AutoBlog Aboneliğiniz Başladı!",
       text: `Merhaba ${billingInfo.name}! AutoBlog ${plan.name} planına abone olduğunuz için teşekkür ederiz. Aboneliğiniz aktif ve kullanmaya hazır.`,
       html: `
