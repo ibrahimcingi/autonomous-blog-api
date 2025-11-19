@@ -38,9 +38,8 @@ export const createSubscription = async (req, res) => {
       ]
     });
 
-    const paymentIntent = subscription.latest_invoice.payment_intent;
     const card = subscription.customer.invoice_settings.default_payment_method.card;
-    const transactionId = paymentIntent.id; 
+    
 
 
     const emailOptions = {
@@ -131,12 +130,7 @@ export const createSubscription = async (req, res) => {
                                   ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
                               </tr>
-                              <tr>
-                                <td style="padding: 10px 0; color: #94a3b8; font-size: 14px;">İşlem No:</td>
-                                <td style="padding: 10px 0; color: #e2e8f0; font-size: 12px; font-family: monospace;">
-                                  ${transactionId || 'TXN-' + Date.now()}
-                                </td>
-                              </tr>
+                            
                             </table>
                           </td>
                         </tr>
