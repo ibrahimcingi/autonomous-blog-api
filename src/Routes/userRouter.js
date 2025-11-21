@@ -528,26 +528,32 @@ UserRouter.delete('/DeleteAccount',AuthMiddleWare,async (req,res)=>{
   }
 })
 
-UserRouter.post('/unsetField',async (req,res)=>{
-  try{
-    await UserSchema.updateMany({}, {
+UserRouter.post('/unsetField', async (req, res) => {
+  try {
+    // Güncelleme
+    const result = await UserSchema.updateMany({}, {
       $unset: {
         resetOTP: "",
         resetOTPExpiresIn: ""
       }
     });
+
+    console.log("UPDATE RESULT:", result);
+
     res.json({
-      success:true,
-      message:'Fields are unset'
-    })
-  }catch(error){
+      success: true,
+      message: 'Fields are unset',
+      result
+    });
+  } catch (error) {
     console.error(error)
     res.json({
-      success:false,
-      message:error.message
+      success: false,
+      message: error.message
     })
   }
-})
+});
+
 
 UserRouter.post('/create-subscription',createSubscription)
 
