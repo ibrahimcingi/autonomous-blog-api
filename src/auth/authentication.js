@@ -225,11 +225,12 @@ Authrouter.post('/SendResetPasswordEmail',async (req,res)=>{
     return res.json({'message':'user not found'})
   }
 
+
   const OTP = String(Math.floor(100000 + Math.random() * 900000));
   const OTPExpiresIn=Date.now()+15*60*1000
 
-  user.resetOTP= OTP
-  user.resetOTPExpiresIn= OTPExpiresIn
+  await redisClient.setEx(`otp:${user.id}`,900 ,JSON.stringify({OTP,OTPExpiresIn}));
+
 
   await user.save()
 
@@ -366,42 +367,40 @@ Authrouter.post('/verifyOTP',async (req,res)=>{
   if(!user){
     res.status(404).json({'message':'user not found'})
   }
-  if(!String(user.resetOTP)===String(OTP) || user.resetOTP===''){
-    return res.json({'message':'account could not be verified'})
-  }else{
-    if(user.verificationOTPExpiresIn<Date.now()){
-      return res.json({'message':'OTP is expired'})
-    }
 
-    return res.json({'message':'OTP verified succesfully.'})
+  const resetOTPDocStr = await redisClient.get(`otp:${user.id}`);
+
+  if (!resetOTPDocStr) {
+    return res.json({ message: 'OTP not found or expired' });
   }
+
+  // JSON parse
+  const resetOTPDoc = JSON.parse(resetOTPDocStr);
+
+  if (String(resetOTPDoc.OTP) !== String(OTP)) {
+    return res.json({ message: 'Account could not be verified' });
+  }
+  
+  if (resetOTPDoc.OTPExpiresIn < Date.now()) {
+    await redisClient.del(`otp:${user.id}`);
+    return res.json({ message: 'OTP is expired' });
+  }
+
+  await redisClient.del(`otp:${user.id}`);
+  
+  return res.json({'message':'OTP verified succesfully.'})
 })
 
 Authrouter.post('/resetPassword', async (req, res) => {
-  const { OTP, new_password, email } = req.body;
+  const {new_password, email } = req.body;
 
   const user = await UserSchema.findOne({ email });
   if (!user) {
     return res.json({ message: 'user not found' });
   }
-
-  if (String(user.resetOTP) !== String(OTP) || user.resetOTP === '') {
-    return res.json({ message: 'account could not be verified' });
-  }
-
-  if (user.resetOTPExpiresIn < Date.now()) {
-    user.resetOTP = '';
-    user.resetOTPExpiresIn = 0;
-    await user.save();
-    return res.json({ message: 'OTP is expired' });
-  }
-
-  
   user.password = new_password;
-  user.resetOTP = '';
-  user.resetOTPExpiresIn = 0;
-
   await user.save(); 
+
 
   return res.json({ message: 'password reseted and updated successfully.' });
 });
