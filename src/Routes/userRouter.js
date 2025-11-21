@@ -216,24 +216,6 @@ UserRouter.get('/me',AuthMiddleWare, async (req,res)=>{
 })
 
 
-UserRouter.post('/testEmail',(req,res)=>{
-  try{
-    const emailOptions={
-      from:process.env.SENDER_EMAIL,
-      to:'cingiibrahim76@gmail.com',
-      subject:'hello this is a test mail'
-    }
-  
-    transporter.sendMail(emailOptions)
-
-    res.send({'success':'true'})
-
-  }catch(error){
-    res.send({"error":error.message})
-  }
-  
-
-})
 
 
 
@@ -550,8 +532,8 @@ UserRouter.post('/unsetField',async (req,res)=>{
   try{
     await UserSchema.updateMany({}, {
       $unset: {
-        otp: "",
-        otpExpiresIn: ""
+        resetOTP: "",
+        resetOTPExpiresIn: ""
       }
     });
     res.json({
