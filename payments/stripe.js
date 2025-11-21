@@ -1,8 +1,6 @@
 import Stripe from "stripe";
 import transporter from "../src/config/nodeMailer.js";
 
-console.log("🔥 SUBSCRIPTION ENDPOINT HIT");
-console.log("Stripe key length:", process.env.STRIPE_SECRET_KEY?.length);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

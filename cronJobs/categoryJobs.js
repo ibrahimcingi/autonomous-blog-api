@@ -24,6 +24,7 @@ export async function syncCategoriesForUser(user) {
 }
 
 export function startCategorySyncJob() {
+  console.log("startCategorySyncJob is called")
   cron.schedule("0 3 * * *", async () => {
     console.log("🕒 Günlük kategori senkronizasyonu başlatıldı...");
     const users = await UserSchema.find({ wordpressUrl: { $exists: true } });
