@@ -2,9 +2,9 @@ import cron from "node-cron";
 import UserSchema from "../src/models/UserSchema.js";
 import redisClient from "../src/config/redis.js";
 
-export async function syncCategoriesForUser(wordpressUrl) {
+export async function syncCategoriesForUser(user) {
   try {
-    const response = await fetch(`${wordpressUrl}/wp-json/wp/v2/categories?per_page=100`);
+    const response = await fetch(`${user.wordpressUrl}/wp-json/wp/v2/categories?per_page=100`);
     const data = await response.json();
     if (!Array.isArray(data)) {
       console.warn(`⚠️ ${user.email} için geçersiz WP yanıtı:`, data);
@@ -28,7 +28,7 @@ export function startCategorySyncJob() {
     console.log("🕒 Günlük kategori senkronizasyonu başlatıldı...");
     const users = await UserSchema.find({ wordpressUrl: { $exists: true } });
     for (const user of users) {
-      await syncCategoriesForUser(user.wordpressUrl);
+      await syncCategoriesForUser(user);
     }
     console.log("✅ Günlük kategori senkronizasyonu tamamlandı.");
   });

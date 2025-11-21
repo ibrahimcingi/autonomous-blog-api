@@ -111,10 +111,9 @@ const UserSchema=new mongoose.Schema({
       deviceType: String,
       loggedAt: { type: Date, default: Date.now }
     }
-  ]
+  ],
+  lastCategorySync:{type:Date,default:Date.now}
   
-
-
 },{timestamps:true})
 
 UserSchema.pre("save", async  function (next) {
