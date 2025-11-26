@@ -290,6 +290,7 @@ UserRouter.put('/ChangePassword',AuthMiddleWare,async (req,res)=>{
       return res.status(401).json({ message: 'invalid password' });
     }
       user.password=newPassword
+      user.tokenVersion+=1
 
       await user.save() 
 
